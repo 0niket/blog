@@ -12,7 +12,7 @@ tags: distributed-system, amazon-efs
 
 Help Center's one of the main features is to display Frequently Asked Questions (FAQs). These FAQs can be edited using a Rich Text Editor, external APIs, and file uploads. FAQs are nothing but HTML documents that are ultimately rendered on the web and in-app web views.
 
-In our primary database, Mongo, the FAQ HTML documents are stored alongside other fields such as FAQ title, search keywords, published status, schedules, and more. With support for 48 different languages, there can be a maximum of 48 HTML documents.
+In our primary database, Mongo, the FAQ HTML documents are stored alongside other fields such as FAQ title, search keywords, published status, schedules, and more. With support for 185 different languages, there can be a maximum of 185 HTML documents.
 
 However, this setup started causing issues. Queries became slower, and memory consumption on Mongo nodes increased, affecting the rest of the application.
 

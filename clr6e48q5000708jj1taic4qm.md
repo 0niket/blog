@@ -49,7 +49,7 @@ After careful consideration, we opted for AWS Elastic File System as it aligns w
     
 2. High availability as it is a distributed file system with replicas and backup facilities.
     
-3. Cost-efficient as it is within the allocated budget.
+3. Cost-efficient
     
 
 ## Solution

@@ -1,5 +1,5 @@
 ---
-title: "Moving large objects from Database to File System"
+title: "Moving large objects from Database to File System - part 1"
 datePublished: Tue Jan 09 2024 13:31:18 GMT+0000 (Coordinated Universal Time)
 cuid: clr6e48q5000708jj1taic4qm
 slug: moving-large-objects-from-database-to-file-system
@@ -171,4 +171,4 @@ To ensure the smooth execution of this cleanup process, the following provisions
 3. Files should be backed up on S3 similar to any other database.
     
 
-Such data migration is a risky affair. In the [next blog post](https://blog.anikethendre.dev/managing-risks-with-data-migration-projects?showSharer=true), we'll examine how the whole project was managed and rolled out.
+Such data migration is a risky affair. In the [next blog post](https://blog.anikethendre.dev/moving-large-objects-from-database-to-file-system-part-2), we'll examine how the whole project was managed and rolled out.

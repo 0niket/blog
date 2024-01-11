@@ -3,7 +3,7 @@ title: "Moving large objects from Database to File System - part 1"
 datePublished: Tue Jan 09 2024 13:31:18 GMT+0000 (Coordinated Universal Time)
 cuid: clr6e48q5000708jj1taic4qm
 slug: moving-large-objects-from-database-to-file-system
-cover: https://cdn.hashnode.com/res/hashnode/image/stock/unsplash/U4TxoQDDc0E/upload/2ec22fd9c164612c4c4e30a6c951b6bb.jpeg
+cover: https://cdn.hashnode.com/res/hashnode/image/stock/unsplash/fteR0e2BzKo/upload/20db87a14b7bb943e5c24dd1dbdb931a.jpeg
 tags: distributed-system, amazon-efs
 
 ---

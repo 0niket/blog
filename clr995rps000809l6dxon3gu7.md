@@ -1,8 +1,8 @@
 ---
-title: "Managing risks with data migration projects"
+title: "Moving large objects from database to file system - part 2"
 datePublished: Thu Jan 11 2024 13:35:50 GMT+0000 (Coordinated Universal Time)
 cuid: clr995rps000809l6dxon3gu7
-slug: managing-risks-with-data-migration-projects
+slug: moving-large-objects-from-database-to-file-system-part-2
 cover: https://cdn.hashnode.com/res/hashnode/image/stock/unsplash/NXt5PrOb_7U/upload/a36c7110fb6ff7029632a8b3ed0ccfe9.jpeg
 
 ---

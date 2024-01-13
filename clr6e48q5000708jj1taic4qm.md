@@ -10,9 +10,11 @@ tags: distributed-system, amazon-efs
 
 ## **Background**
 
-Help Center's one of the main features is to display Frequently Asked Questions (FAQs). These FAQs can be edited using a Rich Text Editor, external APIs, and file uploads. FAQs are nothing but HTML documents that are ultimately rendered on the web and in-app web views.
+Helpshift is a customer service SAAS platform that enables you to provide a self-help experience(Help Center) & a real-time, conversational support experience on different platforms and devices.
 
-In our primary database, Mongo, the FAQ HTML documents are stored alongside other fields such as FAQ title, search keywords, published status, schedules, and more. With support for 185 different languages, there can be a maximum of 185 HTML documents.
+Help Center's one of the main features is to display Frequently Asked Questions (FAQs). Frequently asked questions have properties similar to a blog. Just like a blog has a title, rich content, tags, search keywords, the ability to publish/unpublish, and the ability to schedule the publishing of posts, FAQ also has similar features. Having said that some intricacies need to be addressed specifically. One of the examples is support for the localization of FAQs. which means, we had to support translations for the FAQ in 185 languages. FAQs are rich content, meaning they can have images, videos, and rich textual properties hence they are stored as HTML documents.
+
+In our primary database, Mongo, the FAQ HTML documents were stored alongside other fields such as title, search keywords, published status, schedules, and more. With support for 185 different languages, there can be a maximum of 185 HTML documents.
 
 However, this setup started causing issues. Queries became slower, and memory consumption on Mongo nodes increased, affecting the rest of the application.
 

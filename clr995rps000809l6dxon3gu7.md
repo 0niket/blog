@@ -1,5 +1,5 @@
 ---
-title: "Moving large objects from Database to file system - part 2"
+title: "Moving large objects from Database to File System - part 2"
 datePublished: Thu Jan 11 2024 13:35:50 GMT+0000 (Coordinated Universal Time)
 cuid: clr995rps000809l6dxon3gu7
 slug: moving-large-objects-from-database-to-file-system-part-2

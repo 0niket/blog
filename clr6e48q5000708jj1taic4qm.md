@@ -117,7 +117,7 @@ The aforementioned approach, incorporating the use of the `updated-at` timestamp
 5. User X attempts to read from EFS.
     
 
-Consequences:
+**Consequences:**
 
 Without the use of the `updated-at` timestamp, let's consider how this scenario could impact the read operation. User X reads the document from the database at step 3. Meanwhile, User Y writes to the same document and updates files on EFS at step 4. Suppose the modified file is `en.html`. Now, at step 5, User X reads `en.html` from EFS. Consequently, User X possesses a document containing mixed data—a blend of older metadata fetched from MongoDB and newer file versions.
 

@@ -35,15 +35,9 @@ Addressing issues such as adding a limit on FAQ size and reaching a consensus on
 
 ## **Options**
 
-To address the burning issue and reduce the blast radius during oncall situation, we decided to move the HTML documents out of the collection.
+Based on our findings, we decided to clean up `faqs` collections by moving HTML content out of the database. We evaluated AWS s3, FSx, and EFS as the options.
 
-Although Mongo supports GridFS as a file system solution, it didn't fit our use case.
-
-According to the [Mongo documentation](https://www.mongodb.com/docs/manual/core/gridfs/):
-
-> Do not use GridFS if you need to update the content of the entire file atomically. As an alternative, you can store multiple versions of each file and specify the current version in the metadata. Update the metadata field indicating the "latest" status in an atomic update after uploading a new version of the file, and remove previous versions if needed.
-
-Previously, we used AWS S3 as the default option for object storage, but it wasn't suitable due to response time concerns.
+S3 wasn’t a good option because of higher latencies. FSx lustre would have been an overkill for this use case. EFS (Elastic File System) seems like a good option as it has lower read latency(microseconds) and lower write latency (a couple of milliseconds). Also, one of the stated use cases of EFS is Content Management System so it made sense to use it for managing FAQ contents.
 
 After careful consideration, we opted for AWS Elastic File System as it aligns well with our requirements:
 

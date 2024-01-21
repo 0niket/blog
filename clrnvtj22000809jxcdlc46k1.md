@@ -4,6 +4,7 @@ datePublished: Sun Jan 21 2024 19:18:56 GMT+0000 (Coordinated Universal Time)
 cuid: clrnvtj22000809jxcdlc46k1
 slug: deciding-indexes
 cover: https://cdn.hashnode.com/res/hashnode/image/stock/unsplash/T92YFbo07-Q/upload/bc7a11f927b32b1eb807313c9c857bd1.jpeg
+tags: databases, distributed-system, indexing
 
 ---
 

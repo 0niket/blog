@@ -14,15 +14,15 @@ There are two main functionalities of a database. One is to write to the databas
 
 For simplicity, consider a database as a file where each line corresponds to a record.
 
-While reading, it has to go through each record and see if it matches the filters. This becomes inefficient as the database grows to have a large amount of records as it has linear time complexity.
+During the reading process, the system is required to traverse each record and assess whether it aligns with the specified filters. As the database expands and accumulates a substantial volume of records, this approach becomes inefficient and has a linear time complexity.
 
-Indexes solve this problem by maintaining another data structure called BTree (Mostly B+ Tree as it is more efficient). Btree has pages, each page having a size of around 4kb. There is a root page that then refers to the children's pages and until it reaches a page that has values instead of references. Often, Btrees are shallow trees which helps it find the record quickly due to logarithmic time complexity.
+Indexes address this challenge by introducing another data structure known as a BTree, with the B+ Tree variant being widely favored for its efficiency. The BTree is organized into pages, each typically sized around 4kb. A root page serves as the initial reference point, leading to subsequent child pages, ultimately reaching a page containing values instead of references. BTrees are often designed as shallow trees, allowing for rapid record retrieval and it has logarithmic time complexity.
 
 ![](https://cdn.hashnode.com/res/hashnode/image/upload/v1705863917446/9be55b4e-72d4-4b94-a462-1378dabb8836.png align="center")
 
 ## Let’s look at an Example
 
-The web application comprises several web pages, each offering distinct functionalities. Within this context, users can select and add forms to a specific web page from a predefined set of forms. To accomplish this task, the application incorporates a linking feature. This feature facilitates the association of a chosen form with a particular web page, providing users with a seamless and intuitive method for enhancing their pages with the desired forms.
+Consider we have a SaaS application where we onboard different customers and allow them to publish web pages. Users can select and add forms to a specific web page from a predefined set of forms. To accomplish this task, the application incorporates a linking feature. This feature facilitates the association of a chosen form with a particular web page, providing users with a seamless and intuitive method for enhancing their pages with the desired forms.
 
 ### Page
 
@@ -91,9 +91,9 @@ We’ll take simple queries to get CTA and fallback text for the form. For this 
 
 ```jsx
 db.entity_linking.explain("executionStats").find({
-  customer_id: "customer_1",
+  customer_id: "customer_id_1",
   type: "form_to_page" 
-  entity_id: "form_1"
+  entity_id: "form_id_1"
 });
 ```
 

@@ -123,7 +123,7 @@ export const config = {
 
 ### Periodic purging of unverified accounts
 
-To manage unverified accounts and prevent the accumulation of inactive accounts, there’s a periodic deletion job that runs weekly to identify and delete unverified accounts that have remained unverified for more than 7 days.
+To manage unverified accounts and prevent the accumulation of inactive accounts, there’s a periodic deletion job that runs daily to identify and delete unverified accounts that have remained unverified for more than 7 days.
 
 The deletion cron job queries the user's table for accounts with unverified status and checks their creation date. Accounts that have not been verified within the timeframe are considered inactive and eligible for deletion.
 

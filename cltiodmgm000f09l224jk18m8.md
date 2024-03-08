@@ -11,8 +11,6 @@ cover: https://cdn.hashnode.com/res/hashnode/image/stock/unsplash/2iXKHA9PjVk/up
 
 As an Indie Hacker, I’m building an influencer marketing marketplace that matches appropriate influencers with the brands for marketing campaigns. Since this is a new platform, the focus is primarily on onboarding users. Mainly influencers at this point. With this product, influencers can create personalized and dedicated webpage where they can showcase previous influencer marketing campaigns and accept orders.
 
-This blog post dives into the journey of building smooth sign-up flows to onboard influencers with the least amount of friction.
-
 ## What is Product Led Growth
 
 Unlike traditional sales-driven approaches, where sales teams actively push products onto customers, PLG relies on the inherent value and usability of the product to drive adoption and conversion. The product is designed for users to easily sign up, set up, and start using it without requiring assistance. A good example of this would be Discord, Notion.
@@ -121,7 +119,6 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: ["/dashboard/:path*"],
 };
-
 ```
 
 ### Periodic purging of unverified accounts

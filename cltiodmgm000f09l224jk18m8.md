@@ -1,8 +1,8 @@
 ---
-title: "Implementing smooth sign-ups"
+title: "smooth sign-ups for product led growth"
 datePublished: Fri Mar 08 2024 13:11:11 GMT+0000 (Coordinated Universal Time)
 cuid: cltiodmgm000f09l224jk18m8
-slug: implementing-smooth-sign-ups
+slug: smooth-sign-ups-for-product-led-growth
 cover: https://cdn.hashnode.com/res/hashnode/image/stock/unsplash/2iXKHA9PjVk/upload/e74ecb77640fab5273042bba19c70ee4.jpeg
 
 ---

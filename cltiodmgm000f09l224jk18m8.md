@@ -1,5 +1,5 @@
 ---
-title: "smooth sign-ups for product led growth"
+title: "Smooth sign-ups for product led growth"
 datePublished: Fri Mar 08 2024 13:11:11 GMT+0000 (Coordinated Universal Time)
 cuid: cltiodmgm000f09l224jk18m8
 slug: smooth-sign-ups-for-product-led-growth

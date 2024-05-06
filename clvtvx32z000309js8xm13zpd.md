@@ -8,29 +8,33 @@ slug: a-case-for-good-commit-message
 
 ## \[Writing in progress\]
 
-Commit messages usually express what has changed, but rarely explain the why.
+Studies observed that 14% of commit messages in over 23,000 OSS projects were completely empty, 66% of the messages contained only a few words, and only 10% of commits had messages containing “normal” descriptive english sentences.
 
-Why?
+The commit message should describe what changes commit made to the behaviour of the code and not what changed in the code. What changed in the code is apparent by looking at the diff. Explaining what changed in the code and how it related to the expected outcome is essential for reader to understand the context.
 
-Because it is hard to explain.
+Based on this principle, we can say that a commit message should address the following questions
 
-Because who reads commit logs?
+1. What was changed in the codebase?
+    
+2. Why those changes were made?
+    
 
-Because it is obvious to you and your team members (At the moment)
+A common fallacies while writing commit message are
 
-Because you or co-pilot has written doc strings for new & updated functions
+* It is hard to explain
+    
+* No one reads commit log
+    
+* It is obvious to you and your team members (At the moment)
+    
+* You have already put in all the efforts to make the code changes. Now you lack motivation to spend more time & effort.
+    
+* It is trivial, I just want to get done with it. “Cleanup of x files”, “Minor changes to tests”, “Made changes to X files”. All these commit messages shows lack of accountability.
+    
 
-Because you are going to write high level documentation in confluence, right?
+Communication is key to collaborative software development and context is king. Context is built by recording evolution of the software project, an audit log of commits. Every new commit message should sound like a good build-up on top of the story written with previous commit messages.
 
-Because you have already put in all the efforts to make the code changes. And don’t want to exert more force.
-
-Communication is key to collaborative software development and context is king for effective communication.
-
-VCS already has a way to build up the context. In git, it is `git log` , a log of commits.
-
-The commit message is the face of a commit.
-
-Every new commit message should sound like a good build-up on top of the story written with previous commit messages. Instead of just writing what has changed, mention the reason for the change. The best way is to co-relate it with the business outcome.
+Sometimes there is a direct co-relation between code changes and expected business outcome.
 
 A change to save infra cost → More money to spend on the right things
 
@@ -40,9 +44,14 @@ Critical security fix → Reputation / Goodwill
 
 Performance improvements to meet service level agreements → Better UX → Happy customers
 
-Having said that, not all commits directly impact the business outcome. In this case, you should reason about change from the lens of the department that requires that change. For example, design team has decided to change colour for warning message from X to Y followed by their reasoning to do so. It could be a link to the document.
+While working on such changes, commit log should look like a story building towards achieving expected business outcome.
 
-But but.. you are piling up small commits to build up the feature.  
-Each commit still contributes to the part of the story. Mention that. Mention the decisions you and your team have made. Don’t forget to answer the why question.
+Some changes are department specific. In this case, you should mention the reason from the lens of the department. For example, design team has decided to change colour for warning message from X to Y. Commit message can have a link to the design document explaining the change.
+
+Commits that are related to tech debt items should describe the motivation. Such commits are often describe the error scenario, followed by options, followed by fix. Another category is fixing warnings given by different developer & build tools, Improving over a shortcoming of existing implementation. In such commits, developer’s motivation to fix the issue is vital part of providing the context.
+
+Commits that are in relation to previous work
+
+When rationale for making the change is trivial, it is okay to skip the why, and what part. Examples would be fixing a typo, indentation fix.
 
 ## \[Writing in progress\]

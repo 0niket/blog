@@ -62,3 +62,7 @@ While building features, amending existing features, changes are made in relatio
 ### Exceptions
 
 When the rationale for making the change is trivial, it is okay to skip the why, and what part. Examples would be fixing a typo, or indentation fix.
+
+### Conclusion
+
+In conclusion, focusing on what has changed and why the change has been made are important questions to answer while writing a commit message.

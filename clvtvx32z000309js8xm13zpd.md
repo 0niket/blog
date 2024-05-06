@@ -1,5 +1,5 @@
 ---
-title: "A case for good commit message"
+title: "Semantics of good commit message"
 datePublished: Sun May 05 2024 18:47:09 GMT+0000 (Coordinated Universal Time)
 cuid: clvtvx32z000309js8xm13zpd
 slug: a-case-for-good-commit-message

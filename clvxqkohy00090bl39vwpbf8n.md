@@ -3,6 +3,7 @@ title: "What the RAG"
 datePublished: Wed May 08 2024 11:28:37 GMT+0000 (Coordinated Universal Time)
 cuid: clvxqkohy00090bl39vwpbf8n
 slug: what-the-rag
+cover: https://cdn.hashnode.com/res/hashnode/image/stock/unsplash/6nuz52vsbWc/upload/4a5308ec7df10f59dd27d4c081822b55.jpeg
 tags: llm, rag
 
 ---

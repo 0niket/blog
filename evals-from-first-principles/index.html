@@ -121,83 +121,84 @@ footer{margin-top:4em;padding-top:1.4em;border-top:1px solid var(--line);color:v
 
 <span class="draft">Draft v1</span>
 <h1>Evals from first principles</h1>
-<p class="lede">You changed the prompt on Friday. How do you know Monday's bot is better? This post builds up evals from that one question, without the jargon. Wherever an idea is easier to feel than to read, there's a playground.</p>
+<p class="lede">You changed your chatbot's instructions on Friday. How do you know it's better on Monday? This post answers that one question step by step. Where an idea is easier to try than to read, there's a small interactive demo.</p>
 
 <!-- 1 -->
 <h2><span class="n">1</span>Is Monday's bot better?</h2>
-<p>Say we have a support bot that answers refund questions. On Friday we tweak the prompt. On Monday someone asks: <em>is it better now?</em></p>
-<p>The honest first answer is that we try a few questions and eyeball it. That's not wrong. It's an eval, just a tiny one that we run by hand and keep in our head. The trouble starts when we need to do it again next Friday, and the Friday after, across hundreds of questions, and when "looks fine" from two different people means two different things.</p>
-<p>So let's take the eyeball test apart and see what it's made of.</p>
+<p>Say we run a support chatbot that answers refund questions. On Friday we change its instructions (the <em>prompt</em>). On Monday someone asks: is it better now?</p>
+<p>Most of us would ask it a few questions and see if the answers look okay. That's a fine start. It's actually a test, just a tiny one done by hand. The trouble is that we change the bot every week, there are hundreds of kinds of questions, and "looks okay" means different things to different people.</p>
+<p>It's like tasting soup while cooking. One sip tells you something. But if you're running a restaurant, you need a better way to check every pot. An <strong>eval</strong> (short for <em>evaluation</em>) is that better way: a repeatable test for an AI system.</p>
 
 <!-- 2 -->
-<h2><span class="n">2</span>Three pieces</h2>
-<p>When we "compare against the ideal answer", we're really using three things:</p>
+<h2><span class="n">2</span>Three ingredients</h2>
+<p>When we "check the bot's answers against the right answers", we're really using three things:</p>
 <ol>
-  <li><strong>Inputs.</strong> The questions we ask the bot.</li>
-  <li><strong>References.</strong> What a good answer looks like. For a support bot these already exist: the knowledge articles.</li>
-  <li><strong>Criteria.</strong> What we check: correctness, consistency, writing style.</li>
+  <li><strong>Questions.</strong> What we ask the bot.</li>
+  <li><strong>Right answers.</strong> What a good reply looks like. For a support bot, these already exist in the help-center articles.</li>
+  <li><strong>What we care about.</strong> Is it correct? Is it clear? Does it sound like us?</li>
 </ol>
-<p>Add something that applies the criteria, a <em>checker</em>, and we have a loop we can run after every change.</p>
+<p>Then we need someone or something to do the checking, a <em>grader</em>. Put these together and we have a test we can rerun every time we change the bot. Think of it as an exam: the questions, an answer key, a marking scheme, and a teacher who marks the papers.</p>
 
 <div class="pg" id="pipe">
-  <div class="pg-h"><span class="pg-tag">Animation</span><span class="pg-title">One eval run, one example</span></div>
+  <div class="pg-h"><span class="pg-tag">Watch</span><span class="pg-title">One question going through the test</span></div>
   <div class="pipe">
-    <div class="st"><b>Input</b><span>"How long do I have to return?"</span></div>
-    <div class="st"><b>Bot</b><span>Monday's prompt</span></div>
-    <div class="st"><b>Output</b><span>"About a month."</span></div>
-    <div class="st"><b>Reference</b><span>"30 days of purchase"</span></div>
-    <div class="st"><b>Checker</b><span>criteria → score</span></div>
+    <div class="st"><b>Question</b><span>"How long do I have to return?"</span></div>
+    <div class="st"><b>Bot</b><span>Monday's version</span></div>
+    <div class="st"><b>Bot's answer</b><span>"About a month."</span></div>
+    <div class="st"><b>Right answer</b><span>"30 days of purchase"</span></div>
+    <div class="st"><b>Grader</b><span>gives a score</span></div>
   </div>
   <div class="pipe-cap" aria-live="polite"></div>
   <div class="row"><button id="pipe-toggle">Pause</button></div>
 </div>
 
 <!-- 3 -->
-<h2><span class="n">3</span>What does "compare" mean?</h2>
-<p>The reference says <em>"Refunds are available within 30 days of purchase."</em> The bot says <em>"You can get your money back if it's been less than a month."</em></p>
-<p>Is that correct? Most of us would say: 30 days is better, but a month isn't wrong. Look at what we just did. We didn't give a pass or a fail. We gave a <strong>grade</strong>. Keep that in mind.</p>
-<p>To do this 500 times, we have two kinds of checker:</p>
+<h2><span class="n">3</span>What does "check" mean?</h2>
+<p>The help article says <em>"Refunds are available within 30 days of purchase."</em> The bot says <em>"You can get your money back if it's been less than a month."</em></p>
+<p>Is that right? Most of us would say "30 days" is better, but "a month" isn't wrong. Notice that we didn't say just right or wrong. We gave it something like a <strong>B+</strong>. Keep that in mind.</p>
+<p>Checking 500 answers by hand after every change isn't realistic, so we hand the job to a grader. There are two kinds:</p>
 <ul>
-  <li><strong>Deterministic checks</strong> like regex and exact match. They're fast, free and never change their mind. They're also literal: "a month" fails a check for "30 days".</li>
-  <li><strong>LLM-as-judge.</strong> We give a second model the rubric, the reference and the output, and ask for a grade. It understands paraphrase, but it's a model too, so it can be wrong.</li>
+  <li><strong>An exact-word check.</strong> A small piece of code that looks for specific words, like "30 days". It's instant and free, and it gives the same result every time. But it's like a spell-checker: it only sees words, not meaning. "A month" fails.</li>
+  <li><strong>An AI judge.</strong> A second AI reads the question, the right answer and the bot's answer, and gives a score using our marking scheme. It understands that "a month" and "30 days" mean roughly the same thing. But it's an AI too, so it makes mistakes. (People call this <em>LLM-as-judge</em>.)</li>
 </ul>
 <p>Try both on the same answer:</p>
 
 <div class="pg" id="checker">
-  <div class="pg-h"><span class="pg-tag">Playground</span><span class="pg-title">Strict vs. semantic</span></div>
-  <p class="hint" style="margin:0 0 8px">Reference: “Refunds are available within <b>30 days</b> of purchase.” Edit the bot's answer or pick a preset.</p>
+  <div class="pg-h"><span class="pg-tag">Try it</span><span class="pg-title">Exact words vs. meaning</span></div>
+  <p class="hint" style="margin:0 0 8px">Right answer: “Refunds are available within <b>30 days</b> of purchase.” Edit the bot's answer, or pick one of the examples.</p>
   <div class="row" style="margin-bottom:8px" id="presets"></div>
   <textarea id="ans" rows="2"></textarea>
   <div class="grid2" style="margin-top:12px">
-    <div class="card"><h4>Regex <code>/\b30 days?\b/</code></h4><div id="rx"></div></div>
-    <div class="card"><h4>Judge, rubric 1–5</h4><div id="jd"></div></div>
+    <div class="card"><h4>Exact-word check: “30 days”</h4><div id="rx"></div></div>
+    <div class="card"><h4>AI judge, score out of 5</h4><div id="jd"></div></div>
   </div>
-  <p class="hint" style="margin:10px 0 0">The judge here is a small rule-based stand-in for an LLM, so it runs in your browser. It reads durations the way a person would (“a month”, “four weeks”, “thirty days”).</p>
+  <p class="hint" style="margin:10px 0 0">This “AI judge” is a few simple rules pretending to be an AI, so it can run in your browser. It reads time periods the way a person would (“a month”, “four weeks”, “thirty days”).</p>
 </div>
 
-<p>The two checkers fail differently. Regex is <em>too strict</em> about wording. The judge can be <em>too lenient</em> about meaning. In practice we use both. Facts that must appear word for word, like a phone number, a legal phrase or a policy figure, go to deterministic checks. Everything that needs judgment goes to the judge.</p>
+<p>The two graders make different mistakes. The exact-word check is <em>too picky</em> about wording. The AI judge can be <em>too forgiving</em>. So we use both. When something must be said exactly, like a phone number or a price, we use the exact check. When it needs judgment, we use the AI judge.</p>
 
 <!-- 4 -->
-<h2><span class="n">4</span>Consistent is not correct</h2>
-<p>So the judge gives an answer a 4. Why should we believe that 4?</p>
-<p>A tempting answer: run it ten times, and if it says 4 every time, it's reliable. But think about a bathroom scale that reads 72 kg every time you step on it, while you actually weigh 69. It's perfectly consistent and wrong every time.</p>
-<p>Those are two different properties. <strong>Reliability</strong> means you get the same reading every time. <strong>Validity</strong> means the reading is the right one. Running the judge many times measures the first. It says nothing about the second.</p>
+<h2><span class="n">4</span>Same answer every time ≠ right answer</h2>
+<p>So the AI judge gives an answer 4 out of 5. Should we believe it?</p>
+<p>A tempting idea: run the judge ten times, and if it says 4 every time, it must be good. But think about a bathroom scale that always says 72 kg when you actually weigh 69. It gives the same number every time, and that number is always wrong.</p>
+<p>So there are two different questions. <strong>Does it give the same answer every time?</strong> And <strong>is that answer right?</strong> Running the judge again and again only answers the first.</p>
+<p>Think of darts. Your throws can land close together but far from the bullseye. Or they can be scattered all over, but centered on the bullseye on average. Play with it:</p>
 
 <div class="pg" id="target">
-  <div class="pg-h"><span class="pg-tag">Playground</span><span class="pg-title">Spread vs. offset</span></div>
+  <div class="pg-h"><span class="pg-tag">Try it</span><span class="pg-title">Darts: grouped vs. on target</span></div>
   <div class="grid2">
     <div>
-      <label class="slider">Noise (run-to-run variation) <output id="noise-o"></output><input type="range" id="noise" min="0" max="60" value="10"></label>
-      <label class="slider">Bias (systematic error) <output id="bias-o"></output><input type="range" id="bias" min="0" max="110" value="70"></label>
+      <label class="slider">Shaky hand (throws scatter) <output id="noise-o"></output><input type="range" id="noise" min="0" max="60" value="10"></label>
+      <label class="slider">Bad aim (always off the same way) <output id="bias-o"></output><input type="range" id="bias" min="0" max="110" value="70"></label>
       <div class="row" style="margin-top:8px">
-        <button class="primary" id="shoot">Take 20 readings</button>
-        <button data-preset="0,0">Ideal</button>
-        <button data-preset="10,70">Consistent, wrong</button>
-        <button data-preset="45,0">Right on average, noisy</button>
+        <button class="primary" id="shoot">Throw 20 darts</button>
+        <button data-preset="0,0">Perfect</button>
+        <button data-preset="10,70">Grouped but off</button>
+        <button data-preset="45,0">Scattered but centered</button>
       </div>
       <div class="row" style="margin-top:14px;gap:22px">
-        <div><div class="hint">Spread</div><div class="big" id="spread">–</div></div>
-        <div><div class="hint">Distance from truth</div><div class="big" id="off">–</div></div>
+        <div><div class="hint">How scattered</div><div class="big" id="spread">–</div></div>
+        <div><div class="hint">How far off</div><div class="big" id="off">–</div></div>
       </div>
       <p class="hint" id="target-verdict" style="margin-top:8px"></p>
     </div>
@@ -205,97 +206,101 @@ footer{margin-top:4em;padding-top:1.4em;border-top:1px solid var(--line);color:v
   </div>
 </div>
 
-<p>To check a scale, you put a <em>known weight</em> on it. So what's the known weight for a judge?</p>
+<p>How do you check a bathroom scale? You put something on it whose weight you already know, like a 5 kg bag of rice. So what's the bag of rice for an AI judge?</p>
 
 <!-- 5 -->
-<h2><span class="n">5</span>Who judges the judge?</h2>
-<p>It's tempting to say the knowledge article is the known weight. But there are two comparisons here, and the article only covers one of them:</p>
+<h2><span class="n">5</span>Who checks the judge?</h2>
+<p>It's tempting to say the help article is the bag of rice. But there are two different checks here, and the article only helps with one:</p>
 <div class="pg" style="padding:0;overflow:hidden">
 <table style="width:100%;border-collapse:collapse;font-size:.9rem">
-  <thead><tr style="background:var(--surface-2);text-align:left"><th style="padding:10px 14px">What we check</th><th style="padding:10px 14px">Checked against</th><th style="padding:10px 14px">Comes from</th></tr></thead>
+  <thead><tr style="background:var(--surface-2);text-align:left"><th style="padding:10px 14px">What we check</th><th style="padding:10px 14px">Against what</th><th style="padding:10px 14px">Who provides it</th></tr></thead>
   <tbody>
-    <tr><td style="padding:10px 14px;border-top:1px solid var(--line)">The bot's answer</td><td style="padding:10px 14px;border-top:1px solid var(--line)">The ideal answer</td><td style="padding:10px 14px;border-top:1px solid var(--line)">Knowledge article</td></tr>
-    <tr><td style="padding:10px 14px;border-top:1px solid var(--line)">The judge's grade</td><td style="padding:10px 14px;border-top:1px solid var(--line)">The <em>right</em> grade</td><td style="padding:10px 14px;border-top:1px solid var(--line)"><strong>A subject-matter expert</strong></td></tr>
+    <tr><td style="padding:10px 14px;border-top:1px solid var(--line)">The bot's answer</td><td style="padding:10px 14px;border-top:1px solid var(--line)">The right answer</td><td style="padding:10px 14px;border-top:1px solid var(--line)">Help article</td></tr>
+    <tr><td style="padding:10px 14px;border-top:1px solid var(--line)">The judge's score</td><td style="padding:10px 14px;border-top:1px solid var(--line)">The <em>right</em> score</td><td style="padding:10px 14px;border-top:1px solid var(--line)"><strong>An expert person</strong></td></tr>
   </tbody>
 </table>
 </div>
-<p>The article says "30 days". It can't say whether "a month" deserves a 5, a 4 or a fail. A person decided that. So the known weight is a set of answers <strong>labelled by an expert</strong>. We grade them ourselves, run the judge on the same answers, and measure how often we agree.</p>
-<p>Try it. You're the expert. Grade these eight answers to <em>“How long do I have to return something?”</em> against the reference <em>“30 days of purchase”</em>, then see what the judge said.</p>
+<p>The article says "30 days". It can't tell you whether "a month" deserves a 5, a 4 or a fail. A person has to decide that. So the bag of rice is a set of answers that <strong>an expert has already scored by hand</strong>. Then we run the AI judge on the same answers and see how often it agrees with the expert.</p>
+<p>It's like hiring a new teacher. Before trusting them with the whole class, you give them a few papers you've already marked and see if their marks match yours.</p>
+<p>Try it. You're the expert. Mark these eight answers to <em>“How long do I have to return something?”</em> The right answer is <em>“30 days of purchase.”</em> Then see what the AI judge said.</p>
 
 <div class="pg" id="grade">
-  <div class="pg-h"><span class="pg-tag">Playground</span><span class="pg-title">You vs. the judge</span><span class="hint" id="grade-count"></span></div>
+  <div class="pg-h"><span class="pg-tag">Try it</span><span class="pg-title">You vs. the AI judge</span><span class="hint" id="grade-count"></span></div>
   <div id="gq"></div>
-  <div class="row" style="margin-top:12px"><button class="primary" id="reveal" disabled>Compare with the judge</button><button id="regrade">Reset</button></div>
+  <div class="row" style="margin-top:12px"><button class="primary" id="reveal" disabled>Compare with the AI judge</button><button id="regrade">Reset</button></div>
   <div id="grade-out" style="margin-top:14px"></div>
 </div>
 
-<p>Expert labels have two uses, and they need to stay separate:</p>
+<p>The expert's marked answers can be used in two ways:</p>
 <ul>
-  <li><strong>To teach the judge.</strong> Put graded examples into its prompt so it learns what a 4 looks like.</li>
-  <li><strong>To measure the judge.</strong> Check how often it agrees with the expert.</li>
+  <li><strong>To teach the judge.</strong> Show it some marked examples so it learns what a 4 looks like.</li>
+  <li><strong>To test the judge.</strong> See how often it agrees with the expert.</li>
 </ul>
-<p>Never measure with the examples you taught with. If the judge has already seen the answers, agreeing with them only proves it memorised them. Split the labels, for example 20 to teach and 30 to test. It's the train/test split from machine learning, which we just rediscovered from scratch.</p>
+<p>Never test with the same examples you taught with. That's like giving students the exam questions the night before: a perfect score only proves they memorised the answers. Keep them apart, for example 20 marked answers for teaching and 30 different ones for testing. (In machine learning this is called a <em>train/test split</em>.)</p>
 
 <!-- 6 -->
 <h2><span class="n">6</span>When everyone is wrong together</h2>
-<p>Could the judge and the expert agree and <em>both</em> be wrong? Yes, whenever they share the same source of truth and that source goes stale.</p>
+<p>Could the AI judge and the expert agree and <em>both</em> be wrong? Yes. It happens when both of them check against the same help article, and that article is out of date.</p>
+<p>Picture a group of friends all using the same old map. They all agree on the route, and they all end up at a shop that closed last year.</p>
 
 <div class="pg" id="stale">
-  <div class="pg-h"><span class="pg-tag">Playground</span><span class="pg-title">A shared source of truth</span></div>
+  <div class="pg-h"><span class="pg-tag">Try it</span><span class="pg-title">Everyone trusts the same article</span></div>
   <div class="row" style="margin-bottom:12px"><button id="stale-btn" aria-pressed="false">Change the policy to 14 days</button></div>
   <div class="chain" id="chain"></div>
   <p class="hint" id="stale-cap" style="margin:12px 0 0"></p>
 </div>
 
-<p>An eval measures <em>agreement with a reference</em>, not truth. When the reference drifts, the eval stays green while the product is wrong. Keeping references fresh is part of the eval, not a separate chore.</p>
+<p>An eval tells you whether the bot <em>agrees with your right answers</em>. It doesn't tell you whether those answers are still true. If the help article is out of date, the eval says everything is fine while customers get wrong answers. Keeping the right answers up to date is part of running an eval.</p>
 
 <!-- 7 -->
-<h2><span class="n">7</span>Where do the questions come from?</h2>
-<p>If we write the test questions ourselves, they come out tidy: "What is your refund policy?" Real customers write "bought it 5 wks ago, broken, $$ back??". So the inputs should come from <strong>production logs</strong>.</p>
-<p>But a random sample of logs mirrors traffic, and traffic is mostly easy questions. Say we sample 500 and get 400 "where is my refund?", 90 "how long do I have?", and 10 hard ones: charged twice, damaged item past the window, a bank dispute. The bot scores 97%. Should we celebrate?</p>
+<h2><span class="n">7</span>Where do the test questions come from?</h2>
+<p>If we write the test questions ourselves, they come out neat: "What is your refund policy?" Real customers write "bought it 5 wks ago, broken, $$ back??". So the questions should come from <strong>real chats</strong>, taken from the bot's logs.</p>
+<p>But if we just pick chats at random, we mostly get easy questions, because most customers ask easy things. Say we pick 500 and get 400 "where is my refund?", 90 "how long do I have?", and only 10 hard ones: charged twice, an item that arrived broken after the return window closed, a customer about to dispute the charge with their bank. The bot scores 97%. Should we celebrate?</p>
+<p>Think of a restaurant where 97% of dishes come out great. Sounds good, until you learn the 3% that go wrong are the orders for people with food allergies.</p>
 
 <div class="pg" id="slices">
-  <div class="pg-h"><span class="pg-tag">Playground</span><span class="pg-title">What the average hides</span></div>
+  <div class="pg-h"><span class="pg-tag">Try it</span><span class="pg-title">What the average hides</span></div>
   <div class="grid2" id="slice-ctl"></div>
   <div class="bars" id="bars"></div>
   <p class="hint" id="slice-cap" style="margin:12px 0 0"></p>
 </div>
 
-<p>The fix is to <strong>score each slice separately</strong>. Then there are two follow-ups. <strong>Oversample the hard cases on purpose</strong>: pull them from escalations and complaints, and write some when the logs are too thin. And <strong>weight slices by what failure costs</strong>, not by how often they happen. One wrong answer about a chargeback can cost more than fifty vague ones about refund status.</p>
+<p>The fix is to <strong>score each group of questions separately</strong>, instead of one big average. Two more habits help. <strong>Add extra hard questions on purpose</strong>: find them in complaints and conversations that got passed to a human, and write some yourself if you can't find enough. And <strong>care most about the mistakes that cost the most</strong>, not the ones that happen most often. One wrong answer about a bank dispute can hurt more than fifty slightly vague answers about refund status.</p>
 
 <!-- 8 -->
 <h2><span class="n">8</span>Did it actually get better?</h2>
-<p>We fix the prompt and run the hard slice again. It goes from 4/10 to 6/10. Better?</p>
-<p>A good first move is to <strong>compare pairs, not averages</strong>. Ask <em>which</em> examples flipped, and whether they stay flipped. If a question failed in all 10 runs before and passes in all 10 now, that's a real fix. If it went from flaky to flaky, it isn't.</p>
-<p>Running each version many times and comparing means also helps, but only against one of two sources of noise:</p>
+<p>We fix the prompt and test the 10 hard questions again. The score goes from 4 out of 10 to 6 out of 10. Is it better?</p>
+<p>A good first step is to <strong>look at each question, not just the total</strong>. Which questions changed from fail to pass, and do they stay that way? If question #7 failed every time before and passes every time now, that's a real fix. If it passed only sometimes before and still passes only sometimes, nothing really changed.</p>
+<p>Running the test several times and averaging also helps, but it only deals with one of two kinds of luck:</p>
 <ol>
-  <li><strong>Run-to-run noise.</strong> The same question gets different answers on different runs. Repeated runs average this out.</li>
-  <li><strong>Which-questions noise.</strong> We only have 10 hard questions. A different 10 might have shown no improvement at all. Re-running the same 10 doesn't help with that. Only <em>more questions</em> does.</li>
+  <li><strong>The bot's luck.</strong> Ask the same question twice and you can get two different answers. Running each question several times evens this out.</li>
+  <li><strong>The luck of which questions you picked.</strong> We only have 10 hard questions. A different 10 might have shown no improvement at all. Rerunning the same 10 doesn't fix this. Only <em>more questions</em> does.</li>
 </ol>
-<p>Here's the second kind of noise made visible. Each dot is one possible eval: a fresh sample of questions, scored once. The old prompt truly handles a certain share of hard questions, and the new one truly handles more. How often does the eval actually show that?</p>
+<p>It's like flipping a coin. Get 7 heads out of 10 flips and you can't say the coin is unfair, because that happens often enough by chance. Get 140 heads out of 200 flips and now you can.</p>
+<p>The demo below shows the second kind of luck. Each dot is one eval: we pick a fresh set of questions and score the bot once. We decide how good each prompt <em>really</em> is, then see how often the eval notices the difference.</p>
 
 <div class="pg" id="noisepg">
-  <div class="pg-h"><span class="pg-tag">Playground</span><span class="pg-title">Is the improvement real?</span></div>
+  <div class="pg-h"><span class="pg-tag">Try it</span><span class="pg-title">Is the improvement real?</span></div>
   <div class="grid2">
-    <label class="slider">Old prompt's true pass rate <output id="po-o"></output><input type="range" id="po" min="10" max="90" value="40"></label>
-    <label class="slider">New prompt's true pass rate <output id="pn-o"></output><input type="range" id="pn" min="10" max="90" value="60"></label>
+    <label class="slider">How good the old prompt really is <output id="po-o"></output><input type="range" id="po" min="10" max="90" value="40"></label>
+    <label class="slider">How good the new prompt really is <output id="pn-o"></output><input type="range" id="pn" min="10" max="90" value="60"></label>
   </div>
-  <label class="slider">Questions in the eval <output id="nq-o"></output><input type="range" id="nq" min="0" max="7" value="1"></label>
+  <label class="slider">Number of questions in each eval <output id="nq-o"></output><input type="range" id="nq" min="0" max="7" value="1"></label>
   <div class="row" style="margin:6px 0 12px"><button class="primary" id="sim">Run 200 evals of each</button>
     <div class="legend"><span><i class="sw" style="background:var(--old)"></i>Old prompt</span><span><i class="sw" style="background:var(--accent)"></i>New prompt</span></div>
   </div>
-  <canvas id="nc" width="1200" height="520" aria-label="Distribution of eval scores"></canvas>
+  <canvas id="nc" width="1200" height="520" aria-label="Scores from 200 evals of each prompt"></canvas>
   <div class="row" style="margin-top:12px;gap:24px">
-    <div><div class="hint">Evals where new looked no better</div><div class="big" id="worse">–</div></div>
+    <div><div class="hint">Evals where the new one didn't look better</div><div class="big" id="worse">–</div></div>
     <div style="flex:1;min-width:200px"><p class="hint" id="noise-cap" style="margin:0"></p></div>
   </div>
 </div>
 
-<p>With 10 questions, a real 20-point improvement fails to show up in a noticeable share of evals, and the score of a single eval can land almost anywhere. With a few hundred, the two clouds pull apart. The gap has to be large <em>compared to the spread</em> before we believe it.</p>
+<p>With 10 questions, the new prompt really is better, yet the eval often fails to show it, and one eval's score can land almost anywhere. With a few hundred questions, the two groups of dots separate clearly. Before believing an improvement, check that the gap is bigger than the normal up-and-down from luck.</p>
 
-<div class="callout"><strong>Still being worked out:</strong> how many questions are enough, how to pick them, and what to do once the eval says "better" but users disagree. Next sections coming soon.</div>
+<div class="callout"><strong>Still being worked out:</strong> how many questions are enough, how to choose them, and what to do when the eval says "better" but customers don't agree. More sections coming.</div>
 
-<footer>Written through a Socratic back-and-forth: question, answer, push on the weak spot, repeat. The playgrounds run entirely in your browser and use simulated judges and bots.</footer>
+<footer>Written as a back-and-forth of questions and answers: ask, answer, poke at the weak spot, repeat. All the demos run in your browser. The bots and judges in them are simulated, not real AIs.</footer>
 </main>
 
 <script>
@@ -308,11 +313,11 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 {
   const steps = [...document.querySelectorAll('#pipe .st')];
   const caps = [
-    'An input, ideally a real customer question taken from the logs.',
-    'The thing we are testing: the bot with Monday\'s prompt.',
-    'Whatever the bot said this time. Run it again and it may say something slightly different.',
-    'What a good answer looks like, taken from the knowledge article.',
-    'The checker applies the criteria to output and reference, and returns a score. Repeat for every input.'
+    'A question, ideally a real one a customer actually asked.',
+    'The thing we are testing: the bot with Monday\'s instructions.',
+    'Whatever the bot said this time. Ask again and it might word it a bit differently.',
+    'What a good answer looks like, taken from the help article.',
+    'The grader compares the bot\'s answer with the right answer and gives a score. Then we do the same for every question.'
   ];
   const cap = $('#pipe .pipe-cap'), btn = $('#pipe-toggle');
   let i = 0, timer = null;
@@ -340,15 +345,15 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const judge = t => {
     const ds = durations(t);
     let score, why = [];
-    if (!ds.length) { score = 2; why.push('Doesn\'t state the return window.'); }
+    if (!ds.length) { score = 2; why.push('Never says how long you have.'); }
     else {
       const wrong = ds.find(d => d.days < 28 || d.days > 31);
       const d = ds[0];
-      if (wrong) { score = 1; why.push(`States “${wrong.raw}” (${wrong.days} days). The article says 30.`); }
-      else if (d.unit === 'day') { score = 5; why.push('Matches the article.'); }
-      else if (d.unit === 'month') { score = 4; why.push(`“${d.raw}” means the same thing, but it's less precise than “30 days”.`); }
-      else { score = 3; why.push(`“${d.raw}” is ${d.days} days, close to 30 but not the same.`); }
-      if (score > 1 && /\b(unless|except|but not|excluding|only if)\b/i.test(t)) { score -= 1; why.push('Adds a condition the article doesn\'t mention.'); }
+      if (wrong) { score = 1; why.push(`Says “${wrong.raw}”, but the article says 30 days.`); }
+      else if (d.unit === 'day') { score = 5; why.push('Same as the article.'); }
+      else if (d.unit === 'month') { score = 4; why.push(`“${d.raw}” means about the same, but “30 days” is clearer.`); }
+      else { score = 3; why.push(`“${d.raw}” is ${d.days} days. Close to 30, but not the same.`); }
+      if (score > 1 && /\b(unless|except|but not|excluding|only if)\b/i.test(t)) { score -= 1; why.push('Adds a rule the article doesn\'t mention.'); }
     }
     return { score, why };
   };
@@ -358,7 +363,7 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     ['Thirty days', 'You have thirty days from purchase to ask for a refund.'],
     ['Four weeks', 'Returns are accepted within four weeks.'],
     ['Wrong', 'You can request a refund within 14 days.'],
-    ['Extra condition', 'Refunds within 30 days, unless the item was on sale.'],
+    ['Made-up rule', 'Refunds within 30 days, unless the item was on sale.'],
     ['Vague', 'We have a generous refund policy! Contact us for details.'],
   ];
   const ans = $('#ans'), host = $('#presets');
@@ -368,7 +373,7 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const t = ans.value;
     const rx = /\b30 days?\b/i.test(t);
     $('#rx').innerHTML = (rx ? chip('pass', '✓ Pass') : chip('fail', '✗ Fail')) +
-      `<p class="hint" style="margin:8px 0 0">${rx ? 'The exact phrase is present.' : 'The exact phrase “30 days” is missing.'}</p>`;
+      `<p class="hint" style="margin:8px 0 0">${rx ? 'The words “30 days” are there.' : 'The words “30 days” aren\'t there.'}</p>`;
     const j = judge(t);
     const cls = j.score >= 4 ? 'pass' : j.score === 3 ? 'warn' : 'fail';
     $('#jd').innerHTML = `${chip(cls, j.score + ' / 5')}<p class="hint" style="margin:8px 0 0">${j.why.join(' ')}</p>`;
@@ -388,7 +393,7 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const line = css('--line'), muted = css('--muted');
     [260, 195, 130, 65].forEach((r, k) => { ctx.beginPath(); ctx.arc(C, C, r, 0, 7); ctx.fillStyle = k % 2 ? css('--surface-2') : css('--bg'); ctx.fill(); ctx.strokeStyle = line; ctx.lineWidth = 2; ctx.stroke(); });
     ctx.beginPath(); ctx.arc(C, C, 8, 0, 7); ctx.fillStyle = css('--pass'); ctx.fill();
-    ctx.font = '600 22px ' + css('--sans'); ctx.fillStyle = muted; ctx.textAlign = 'center'; ctx.fillText('truth', C, C - 18);
+    ctx.font = '600 22px ' + css('--sans'); ctx.fillStyle = muted; ctx.textAlign = 'center'; ctx.fillText('bullseye', C, C - 18);
     shots.forEach(s => { ctx.beginPath(); ctx.arc(s.x, s.y, 9, 0, 7); ctx.fillStyle = css('--accent'); ctx.globalAlpha = .85; ctx.fill(); ctx.globalAlpha = 1; });
   }
   function stats() {
@@ -399,10 +404,10 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const lab = v => v < 25 ? 'low' : v < 60 ? 'medium' : 'high';
     $('#spread').textContent = lab(sp); $('#off').textContent = lab(off);
     $('#target-verdict').textContent =
-      sp < 25 && off >= 25 ? 'Consistent and wrong. Re-running the judge would never reveal this.' :
-      sp >= 25 && off < 25 ? 'Right on average, but any single reading is unreliable. Averaging many runs helps here.' :
-      sp < 25 ? 'Consistent and correct. This is what we want, but we can only know it by comparing against a known weight.' :
-      'Noisy and off-target.';
+      sp < 25 && off >= 25 ? 'Grouped but off. Throwing more darts won\'t fix this, because the aim is the problem. Without a bullseye to look at, you\'d never even know.' :
+      sp >= 25 && off < 25 ? 'Centered on average, but any single throw could be anywhere. Averaging many throws helps here.' :
+      sp < 25 ? 'Grouped and on target. This is what we want, but you only know it because you can see the bullseye.' :
+      'Scattered and off target.';
   }
   function shoot() {
     cancelAnimationFrame(anim); shots = [];
@@ -424,14 +429,14 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* ---------- 5. grading ---------- */
 {
   const items = [
-    { t: 'You have 30 days from purchase to request a refund.', j: 1, note: 'Easy agreement.' },
-    { t: 'You can get a refund within a month of buying.', j: 0, note: 'The judge penalises paraphrase. It wants the literal “30 days”.' },
-    { t: 'Refunds are available for 60 days after purchase.', j: 0, note: 'Wrong window. Both should fail it.' },
-    { t: 'Thirty days from purchase. Reply with your order number and we\'ll start it.', j: 1, note: 'Correct and helpful.' },
-    { t: 'You can request a refund within four weeks.', j: 0, note: '28 days is a real difference. Reasonable people split on this one.' },
-    { t: 'Our refund policy is generous! Contact support for details.', j: 1, note: 'The judge is fooled by a friendly tone. The answer never states the window.' },
-    { t: '30 days, but sale items are final.', j: 1, note: 'It invents a condition that isn\'t in the article. The judge doesn\'t notice.' },
-    { t: 'Refunds are available within 30 days of purchase.', j: 1, note: 'Word for word from the article.' },
+    { t: 'You have 30 days from purchase to request a refund.', j: 1, note: 'Easy one.' },
+    { t: 'You can get a refund within a month of buying.', j: 0, note: 'The judge is too picky. It wants the exact words “30 days”.' },
+    { t: 'Refunds are available for 60 days after purchase.', j: 0, note: 'Wrong number of days. Everyone should fail this.' },
+    { t: 'Thirty days from purchase. Reply with your order number and we\'ll start it.', j: 1, note: 'Right and helpful.' },
+    { t: 'You can request a refund within four weeks.', j: 0, note: '28 days isn\'t 30. People disagree on this one.' },
+    { t: 'Our refund policy is generous! Contact support for details.', j: 1, note: 'The judge is fooled by the friendly tone. The answer never says how long you have.' },
+    { t: '30 days, but sale items are final.', j: 1, note: 'It makes up a rule that isn\'t in the article. The judge doesn\'t notice.' },
+    { t: 'Refunds are available within 30 days of purchase.', j: 1, note: 'Copied word for word from the article.' },
   ];
   const host = $('#gq'), mine = Array(items.length).fill(null), pg = $('#grade');
   items.forEach((it, i) => {
@@ -455,19 +460,19 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     let agree = 0, cm = [[0, 0], [0, 0]];
     host.querySelectorAll('.gq').forEach((d, i) => {
       const it = items[i], ok = mine[i] === it.j; agree += ok; cm[mine[i]][it.j]++;
-      d.querySelector('.res').innerHTML = `Judge: <span class="chip ${it.j ? 'pass' : 'fail'}">${it.j ? 'Pass' : 'Fail'}</span> ${ok ? '· agrees with you' : '· <strong>disagrees</strong>'}. ${it.note}`;
+      d.querySelector('.res').innerHTML = `Judge: <span class="chip ${it.j ? 'pass' : 'fail'}">${it.j ? 'Pass' : 'Fail'}</span> ${ok ? '· same as you' : '· <strong>different from you</strong>'}. ${it.note}`;
     });
     const pct = Math.round(agree / items.length * 100);
     $('#grade-out').innerHTML = `
       <div class="row" style="gap:24px;align-items:flex-start">
-        <div><div class="hint">Agreement</div><div class="big">${agree}/${items.length} · ${pct}%</div></div>
+        <div><div class="hint">You and the judge agreed</div><div class="big">${agree}/${items.length} · ${pct}%</div></div>
         <table style="font-size:.85rem;border-collapse:collapse">
           <tr><td></td><th style="padding:4px 10px">Judge pass</th><th style="padding:4px 10px">Judge fail</th></tr>
           <tr><th style="padding:4px 10px;text-align:right">You pass</th><td style="text-align:center">${cm[1][1]}</td><td style="text-align:center;color:var(--fail)">${cm[1][0]}</td></tr>
           <tr><th style="padding:4px 10px;text-align:right">You fail</th><td style="text-align:center;color:var(--fail)">${cm[0][1]}</td><td style="text-align:center">${cm[0][0]}</td></tr>
         </table>
       </div>
-      <p class="hint" style="margin:10px 0 0">The agreement number matters less than the <em>pattern</em> of disagreements. This judge is strict about wording and lenient about vagueness. That's a rubric problem you can fix, and then measure again on a <em>different</em> set of labelled answers.</p>`;
+      <p class="hint" style="margin:10px 0 0">Look at <em>where</em> you disagreed, not just how often. This judge is too picky about exact words and too easily pleased by vague answers. You can fix that by giving it clearer marking instructions, then test it again on a <em>different</em> set of marked answers.</p>`;
   }
   $('#reveal').onclick = reveal;
   $('#regrade').onclick = () => { mine.fill(null); pg.classList.remove('revealed'); host.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', 'false')); $('#grade-out').innerHTML = ''; update(); };
@@ -479,17 +484,17 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const btn = $('#stale-btn'), chain = $('#chain');
   const render = stale => {
     const rows = [
-      ['Reality', stale ? 'Policy is now 14 days' : 'Policy is 30 days', ['pass', 'Truth']],
-      ['Article', 'Says 30 days', stale ? ['fail', 'Stale'] : ['pass', 'Current']],
+      ['Real policy', stale ? 'Now 14 days' : '30 days', ['pass', 'The truth']],
+      ['Help article', 'Says 30 days', stale ? ['fail', 'Out of date'] : ['pass', 'Up to date']],
       ['Bot', 'Answers “30 days”', stale ? ['fail', 'Wrong'] : ['pass', 'Right']],
-      ['Judge', 'Bot matches article → 5/5', ['pass', 'Passes it']],
-      ['Expert', 'Checks against article → agrees', ['pass', 'Agrees']],
+      ['AI judge', 'Bot matches the article, so 5/5', ['pass', 'Passes it']],
+      ['Expert', 'Checks the article, agrees', ['pass', 'Agrees']],
     ];
     chain.innerHTML = rows.map(([w, t, [c, l]], i) =>
       `<div class="link ${stale && i > 0 && i < 3 ? 'bad' : ''}"><span class="who">${w}</span><span class="what">${t}</span><span class="chip ${c}">${l}</span></div>`).join('');
     $('#stale-cap').innerHTML = stale
-      ? '<strong>Eval score: 100%. Judge–expert agreement: 100%. Every customer gets the wrong answer.</strong> Nothing in the eval loop can detect this, because every check leads back to the same stale article.'
-      : 'Everything lines up. Now change the policy without updating the article.';
+      ? '<strong>Eval score: 100%. Judge and expert agree 100%. Every customer gets the wrong answer.</strong> The eval can\'t catch this, because every check goes back to the same out-of-date article.'
+      : 'Everything matches. Now change the policy but forget to update the article.';
     btn.setAttribute('aria-pressed', stale);
     btn.textContent = stale ? 'Undo the policy change' : 'Change the policy to 14 days';
   };
@@ -508,8 +513,8 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   slices.forEach((s, i) => {
     const d = document.createElement('div'); d.className = 'card';
     d.innerHTML = `<h4>${s.name}</h4>
-      <label class="slider">Examples <output></output><input type="range" min="0" max="500" step="5" value="${s.n}" data-k="n"></label>
-      <label class="slider">Accuracy <output></output><input type="range" min="0" max="100" value="${s.a}" data-k="a"></label>`;
+      <label class="slider">Questions <output></output><input type="range" min="0" max="500" step="5" value="${s.n}" data-k="n"></label>
+      <label class="slider">% answered right <output></output><input type="range" min="0" max="100" value="${s.a}" data-k="a"></label>`;
     d.querySelectorAll('input').forEach(inp => inp.addEventListener('input', () => { s[inp.dataset.k] = +inp.value; render(); }));
     ctl.append(d);
   });
@@ -525,8 +530,8 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     $('#bars').innerHTML = bar('<strong>Overall</strong>', overall, 'overall') + slices.map(s => bar(s.name, s.a, s === worst && s.a < overall - 10 ? 'worst' : '')).join('');
     const gap = worst ? overall - worst.a : 0;
     $('#slice-cap').innerHTML = gap > 10
-      ? `The overall score is <strong>${overall.toFixed(0)}%</strong>, but <strong>${worst.name}</strong> is at ${worst.a}%. Its ${worst.n} examples are only ${(worst.n / N * 100).toFixed(0)}% of the set, so the average barely notices them.`
-      : 'No slice is hiding far below the average right now. Try making one slice small and bad.';
+      ? `The overall score is <strong>${overall.toFixed(0)}%</strong>, but <strong>${worst.name}</strong> is only ${worst.a}%. Those ${worst.n} questions are just ${(worst.n / N * 100).toFixed(0)}% of the test, so they barely move the average.`
+      : 'No group is hiding far below the average right now. Try making one group small and bad.';
   }
   render();
 }
@@ -570,9 +575,9 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
       $('#worse').textContent = Math.round(worse * 100) + '%';
       const lo = Math.min(...res.n), hi = Math.max(...res.n);
       $('#noise-cap').innerHTML = (b <= a)
-        ? 'The new prompt isn\'t truly better here, so the eval <em>should</em> show no gain.'
-        : `With <strong>${n}</strong> questions, the new prompt's score ranged from ${Math.round(lo * 100)}% to ${Math.round(hi * 100)}% across evals, even though its true rate never changed. ` +
-          (worse > .1 ? 'One eval at this size is close to a coin flip. Add questions before trusting the gain.' : worse > .02 ? 'Usually right, but not reliably.' : 'At this size the improvement shows up almost every time.');
+        ? 'The new prompt isn\'t really better here, so the eval <em>should</em> show no improvement.'
+        : `With <strong>${n}</strong> questions, the new prompt scored anywhere from ${Math.round(lo * 100)}% to ${Math.round(hi * 100)}%, even though it never actually changed. ` +
+          (worse > .1 ? 'At this size, one eval is a bit of a gamble. Add more questions before you trust the improvement.' : worse > .02 ? 'Usually right, but not always.' : 'At this size, the improvement shows up almost every time.');
     };
     if (reduce) return finish();
     let k = 0; const step = () => { k = Math.min(R, k + 8); draw(k); if (k < R) timer = setTimeout(step, 16); else finish(); };

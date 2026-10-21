@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Evals from First Principles</title>
-<meta name="description" content="How do you know Monday's bot is better than Friday's? Building up LLM evals from scratch, with playgrounds.">
+<meta name="description" content="How do you know Monday's bot is better than Friday's? Building up LLM evals from scratch, with interactive demos.">
 <style>
 :root{
   --bg:#fbfaf7; --surface:#ffffff; --surface-2:#f2f0ea; --text:#1d1d1b; --muted:#6b6a64; --line:#e2dfd6;
@@ -37,28 +37,37 @@ p{margin:0 0 1.1em}
 .lede{font-size:1.15rem;color:var(--muted)}
 .draft{display:inline-block;font-family:var(--sans);font-size:.75rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
   color:var(--warn);background:var(--warn-soft);padding:3px 8px;border-radius:4px;margin-bottom:1rem}
-blockquote{margin:1.2em 0;padding:.2em 1em;border-left:3px solid var(--line);color:var(--muted)}
 code{font-family:var(--mono);font-size:.85em;background:var(--surface-2);padding:1px 5px;border-radius:4px}
 strong{font-weight:650}
 ul,ol{padding-left:1.3em;margin:0 0 1.1em}
 li{margin:.25em 0}
+a{color:var(--accent)}
 .callout{font-family:var(--sans);font-size:1rem;background:var(--accent-soft);border-radius:10px;padding:14px 18px;margin:1.4em 0}
 
-/* playground shell */
+/* "the proper term" boxes */
+.term{font-family:var(--sans);font-size:.95rem;line-height:1.55;border-left:3px solid var(--accent);background:var(--surface);
+  border-radius:0 10px 10px 0;padding:12px 16px;margin:1.4em 0}
+.term .lab{display:block;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.term dl{margin:0}
+.term dt{font-weight:700;margin-top:8px}
+.term dt:first-child{margin-top:0}
+.term dd{margin:2px 0 0}
+
+/* demo shell */
 .pg{font-family:var(--sans);font-size:.95rem;line-height:1.5;background:var(--surface);border:1px solid var(--line);
-  border-radius:14px;padding:18px;margin:1.8em 0;box-shadow:0 1px 0 rgba(0,0,0,.02)}
+  border-radius:14px;padding:18px;margin:1.8em 0}
 .pg-h{display:flex;align-items:baseline;gap:10px;margin-bottom:12px;flex-wrap:wrap}
 .pg-tag{font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
 .pg-title{font-weight:650}
 .pg .hint{color:var(--muted);font-size:.85rem}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-button,.btn{font:inherit;font-size:.88rem;border:1px solid var(--line);background:var(--surface-2);color:var(--text);
+button{font:inherit;font-size:.88rem;border:1px solid var(--line);background:var(--surface-2);color:var(--text);
   padding:6px 12px;border-radius:8px;cursor:pointer}
 button:hover{border-color:var(--muted)}
+button:disabled{opacity:.5;cursor:not-allowed}
 button.primary{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:600}
 button[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text)}
-textarea,input[type=text]{font:inherit;width:100%;border:1px solid var(--line);background:var(--bg);color:var(--text);
-  border-radius:8px;padding:10px 12px;resize:vertical}
+textarea{font:inherit;width:100%;border:1px solid var(--line);background:var(--bg);color:var(--text);border-radius:8px;padding:10px 12px;resize:vertical}
 input[type=range]{width:100%;accent-color:var(--accent)}
 label.slider{display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:.85rem;margin:6px 0}
 label.slider input{grid-column:1/-1}
@@ -71,28 +80,52 @@ label.slider output{font-variant-numeric:tabular-nums;font-weight:600}
 .chip.pass{color:var(--pass);background:var(--pass-soft)}
 .chip.fail{color:var(--fail);background:var(--fail-soft)}
 .chip.warn{color:var(--warn);background:var(--warn-soft)}
-.chip.neutral{color:var(--muted);background:var(--surface-2)}
 .big{font-size:1.7rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.stats{display:flex;gap:22px;flex-wrap:wrap;margin-top:12px}
 canvas{display:block;width:100%;height:auto;border-radius:10px;background:var(--bg);border:1px solid var(--line)}
+table.plain{width:100%;border-collapse:collapse;font-family:var(--sans);font-size:.9rem}
+table.plain th,table.plain td{padding:9px 12px;border-top:1px solid var(--line);text-align:left;vertical-align:top}
+table.plain thead th{background:var(--surface-2);border-top:0}
 
-/* pipeline */
-.pipe{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;align-items:stretch;margin:6px 0 4px}
+/* pipeline / loop */
+.pipe{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:6px 0 4px}
 .pipe .st{border:1.5px solid var(--line);border-radius:10px;padding:10px 8px;text-align:center;background:var(--bg);
-  font-size:.82rem;transition:border-color .3s,background .3s,transform .3s}
+  font-size:.82rem;cursor:pointer;transition:border-color .3s,background .3s,transform .3s}
 .pipe .st b{display:block;font-size:.9rem;margin-bottom:2px}
 .pipe .st span{color:var(--muted);font-size:.78rem}
 .pipe .st.on{border-color:var(--accent);background:var(--accent-soft);transform:translateY(-2px)}
 @media (max-width:560px){.pipe{grid-template-columns:1fr 1fr}.pipe .st:last-child{grid-column:1/-1}}
 .pipe-cap{min-height:3em;margin-top:10px;color:var(--muted)}
 
-/* grading */
-.gq{border-top:1px solid var(--line);padding:12px 0;display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:center}
-.gq:first-of-type{border-top:0}
+/* judge runs (section 4) */
+.runs{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;align-items:end;height:230px;border-bottom:2px solid var(--line);padding:0 4px}
+.runs .col{display:flex;flex-direction:column-reverse;align-items:center;gap:3px;height:100%;position:relative}
+.runs .dot{width:16px;height:7px;border-radius:3px;background:var(--accent);animation:pop .25s ease-out}
+.runs .col.truth::before{content:"";position:absolute;inset:0;background:var(--pass-soft);border-radius:8px 8px 0 0;z-index:-1}
+.runs-x{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;text-align:center;font-weight:650;padding:6px 4px 0}
+.runs-x small{display:block;font-weight:500;color:var(--pass);font-size:.72rem}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+
+/* grading (section 5) */
+.gq{border-top:1px solid var(--line);padding:12px 0;display:grid;grid-template-columns:28px 1fr auto;gap:6px 10px;align-items:center}
+.gq:first-child{border-top:0}
+.gq .num{color:var(--muted);font-weight:600}
 .gq .txt{font-family:var(--serif);font-size:1rem}
 .gq .btns{display:flex;gap:6px}
-.gq .res{grid-column:1/-1;font-size:.85rem;color:var(--muted);display:none}
+.gq .res{grid-column:2/-1;font-size:.85rem;color:var(--muted);display:none}
 .revealed .gq .res{display:block}
-@media (max-width:560px){.gq{grid-template-columns:1fr}}
+@media (max-width:560px){.gq{grid-template-columns:28px 1fr}.gq .btns{grid-column:2}}
+.cm{display:grid;grid-template-columns:auto 1fr 1fr;gap:6px;font-size:.85rem;margin-top:6px}
+.cm .h{font-weight:650;color:var(--muted);padding:4px;align-self:end}
+.cm .c{border-radius:10px;padding:10px;min-height:84px}
+.cm .c b{display:block;font-size:1.4rem;font-variant-numeric:tabular-nums}
+.cm .c.good{background:var(--pass-soft)}
+.cm .c.bad{background:var(--fail-soft)}
+.cm .c .nm{font-weight:650}
+.cm .c .ids{color:var(--muted);font-size:.78rem}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+@media (max-width:560px){.metrics{grid-template-columns:1fr}}
+.metrics .card p{margin:4px 0 0;font-size:.85rem;color:var(--muted)}
 
 /* stale */
 .chain{display:grid;gap:8px}
@@ -102,7 +135,7 @@ canvas{display:block;width:100%;height:auto;border-radius:10px;background:var(--
 @media (max-width:560px){.link{grid-template-columns:1fr auto}.link .what{grid-column:1/-1;grid-row:2}}
 
 /* slices */
-.bars{display:grid;gap:10px;margin-top:8px}
+.bars{display:grid;gap:10px;margin-top:12px}
 .bar{display:grid;grid-template-columns:120px 1fr 52px;gap:10px;align-items:center;font-size:.85rem}
 .bar .track{height:14px;background:var(--surface-2);border-radius:7px;overflow:hidden}
 .bar .fill{height:100%;background:var(--accent);border-radius:7px;transition:width .25s}
@@ -119,15 +152,18 @@ footer{margin-top:4em;padding-top:1.4em;border-top:1px solid var(--line);color:v
 <body>
 <main>
 
-<span class="draft">Draft v1</span>
+<span class="draft">Draft v2</span>
 <h1>Evals from first principles</h1>
-<p class="lede">You changed your chatbot's instructions on Friday. How do you know it's better on Monday? This post answers that one question step by step. Where an idea is easier to try than to read, there's a small interactive demo.</p>
+<p class="lede">You changed your chatbot's instructions on Friday. How do you know it's better on Monday? This post answers that one question step by step, in plain words first, then gives each idea its proper name. Where an idea is easier to try than to read, there's a demo.</p>
 
 <!-- 1 -->
 <h2><span class="n">1</span>Is Monday's bot better?</h2>
 <p>Say we run a support chatbot that answers refund questions. On Friday we change its instructions (the <em>prompt</em>). On Monday someone asks: is it better now?</p>
 <p>Most of us would ask it a few questions and see if the answers look okay. That's a fine start. It's actually a test, just a tiny one done by hand. The trouble is that we change the bot every week, there are hundreds of kinds of questions, and "looks okay" means different things to different people.</p>
-<p>It's like tasting soup while cooking. One sip tells you something. But if you're running a restaurant, you need a better way to check every pot. An <strong>eval</strong> (short for <em>evaluation</em>) is that better way: a repeatable test for an AI system.</p>
+<p>It's like tasting soup while cooking. One sip tells you something. But if you're running a restaurant, you need a better way to check every pot.</p>
+<div class="term"><span class="lab">The proper term</span><dl>
+  <dt>Eval</dt><dd>Short for <em>evaluation</em>: a repeatable test that measures how well an AI system does its job. The rest of this post is about building one you can trust.</dd>
+</dl></div>
 
 <!-- 2 -->
 <h2><span class="n">2</span>Three ingredients</h2>
@@ -137,7 +173,7 @@ footer{margin-top:4em;padding-top:1.4em;border-top:1px solid var(--line);color:v
   <li><strong>Right answers.</strong> What a good reply looks like. For a support bot, these already exist in the help-center articles.</li>
   <li><strong>What we care about.</strong> Is it correct? Is it clear? Does it sound like us?</li>
 </ol>
-<p>Then we need someone or something to do the checking, a <em>grader</em>. Put these together and we have a test we can rerun every time we change the bot. Think of it as an exam: the questions, an answer key, a marking scheme, and a teacher who marks the papers.</p>
+<p>Then we need someone or something to do the checking: a <em>grader</em>. Think of it as an exam: the questions, an answer key, a marking scheme, and a teacher who marks the papers.</p>
 
 <div class="pg" id="pipe">
   <div class="pg-h"><span class="pg-tag">Watch</span><span class="pg-title">One question going through the test</span></div>
@@ -152,6 +188,13 @@ footer{margin-top:4em;padding-top:1.4em;border-top:1px solid var(--line);color:v
   <div class="row"><button id="pipe-toggle">Pause</button></div>
 </div>
 
+<div class="term"><span class="lab">The proper terms</span><dl>
+  <dt>Eval set (or test set)</dt><dd>The list of questions you test with.</dd>
+  <dt>Reference answer</dt><dd>The right answer you compare against. In our case, what the help article says.</dd>
+  <dt>Rubric</dt><dd>The marking scheme: what you check and what each score means.</dd>
+  <dt>Grader</dt><dd>Whatever applies the rubric: a person, some code, or another AI.</dd>
+</dl></div>
+
 <!-- 3 -->
 <h2><span class="n">3</span>What does "check" mean?</h2>
 <p>The help article says <em>"Refunds are available within 30 days of purchase."</em> The bot says <em>"You can get your money back if it's been less than a month."</em></p>
@@ -159,84 +202,113 @@ footer{margin-top:4em;padding-top:1.4em;border-top:1px solid var(--line);color:v
 <p>Checking 500 answers by hand after every change isn't realistic, so we hand the job to a grader. There are two kinds:</p>
 <ul>
   <li><strong>An exact-word check.</strong> A small piece of code that looks for specific words, like "30 days". It's instant and free, and it gives the same result every time. But it's like a spell-checker: it only sees words, not meaning. "A month" fails.</li>
-  <li><strong>An AI judge.</strong> A second AI reads the question, the right answer and the bot's answer, and gives a score using our marking scheme. It understands that "a month" and "30 days" mean roughly the same thing. But it's an AI too, so it makes mistakes. (People call this <em>LLM-as-judge</em>.)</li>
+  <li><strong>An AI judge.</strong> A second AI reads the question, the right answer and the bot's answer, and gives a score using our rubric. It understands that "a month" and "30 days" mean roughly the same thing. But it's an AI too, so it makes mistakes.</li>
 </ul>
-<p>Try both on the same answer:</p>
+<p>Try both on the same answer. The AI judge in this demo is a simulation with <strong>four flaws built in on purpose</strong>, the kind real AI judges have. See if you can spot them. We'll catch them properly in section 5.</p>
 
 <div class="pg" id="checker">
   <div class="pg-h"><span class="pg-tag">Try it</span><span class="pg-title">Exact words vs. meaning</span></div>
   <p class="hint" style="margin:0 0 8px">Right answer: “Refunds are available within <b>30 days</b> of purchase.” Edit the bot's answer, or pick one of the examples.</p>
   <div class="row" style="margin-bottom:8px" id="presets"></div>
-  <textarea id="ans" rows="2"></textarea>
+  <textarea id="ans" rows="2" aria-label="Bot's answer"></textarea>
   <div class="grid2" style="margin-top:12px">
     <div class="card"><h4>Exact-word check: “30 days”</h4><div id="rx"></div></div>
     <div class="card"><h4>AI judge, score out of 5</h4><div id="jd"></div></div>
   </div>
-  <p class="hint" style="margin:10px 0 0">This “AI judge” is a few simple rules pretending to be an AI, so it can run in your browser. It reads time periods the way a person would (“a month”, “four weeks”, “thirty days”).</p>
+  <p class="hint" style="margin:10px 0 0">The judge's four flaws: it treats “four weeks” as 30 days, it gets fooled by friendly answers with no facts, it misses made-up rules, and it marks down answers that ask the customer a follow-up question. The same judge is used again in section 5.</p>
 </div>
 
-<p>The two graders make different mistakes. The exact-word check is <em>too picky</em> about wording. The AI judge can be <em>too forgiving</em>. So we use both. When something must be said exactly, like a phone number or a price, we use the exact check. When it needs judgment, we use the AI judge.</p>
+<p>The two graders make different mistakes. The exact-word check is <em>too picky</em> about wording. The AI judge can be <em>too forgiving</em>, or forgiving in the wrong places. So we use both. When something must be said exactly, like a phone number or a price, we use the exact check. When it needs judgment, we use the AI judge.</p>
+<div class="term"><span class="lab">The proper terms</span><dl>
+  <dt>Deterministic (or code-based) check</dt><dd>A check written in code that gives the same result for the same input every time. Exact match and regex (a pattern-matching mini-language) are the common ones.</dd>
+  <dt>LLM-as-judge</dt><dd>Using a large language model (an LLM) as the grader.</dd>
+</dl></div>
 
 <!-- 4 -->
 <h2><span class="n">4</span>Same answer every time ≠ right answer</h2>
 <p>So the AI judge gives an answer 4 out of 5. Should we believe it?</p>
 <p>A tempting idea: run the judge ten times, and if it says 4 every time, it must be good. But think about a bathroom scale that always says 72 kg when you actually weigh 69. It gives the same number every time, and that number is always wrong.</p>
-<p>So there are two different questions. <strong>Does it give the same answer every time?</strong> And <strong>is that answer right?</strong> Running the judge again and again only answers the first.</p>
-<p>Think of darts. Your throws can land close together but far from the bullseye. Or they can be scattered all over, but centered on the bullseye on average. Play with it:</p>
+<p>So a grader can go wrong in two separate ways. Its scores can <strong>jump around</strong> from run to run. Or they can be <strong>off in the same direction every time</strong>. Running the judge again and again only reveals the first.</p>
+<p>Try it below. An expert has already decided the answer deserves a <strong>4</strong> (the green column). Run the judge 20 times on that same answer and see where its scores land.</p>
 
-<div class="pg" id="target">
-  <div class="pg-h"><span class="pg-tag">Try it</span><span class="pg-title">Darts: grouped vs. on target</span></div>
+<div class="pg" id="jruns">
+  <div class="pg-h"><span class="pg-tag">Try it</span><span class="pg-title">Run the judge 20 times on one answer</span></div>
+  <p class="hint" style="margin:0 0 10px">Answer being graded: “You can get your money back within a month.” Correct score, according to the expert: <b>4</b>.</p>
   <div class="grid2">
-    <div>
-      <label class="slider">Shaky hand (throws scatter) <output id="noise-o"></output><input type="range" id="noise" min="0" max="60" value="10"></label>
-      <label class="slider">Bad aim (always off the same way) <output id="bias-o"></output><input type="range" id="bias" min="0" max="110" value="70"></label>
-      <div class="row" style="margin-top:8px">
-        <button class="primary" id="shoot">Throw 20 darts</button>
-        <button data-preset="0,0">Perfect</button>
-        <button data-preset="10,70">Grouped but off</button>
-        <button data-preset="45,0">Scattered but centered</button>
-      </div>
-      <div class="row" style="margin-top:14px;gap:22px">
-        <div><div class="hint">How scattered</div><div class="big" id="spread">–</div></div>
-        <div><div class="hint">How far off</div><div class="big" id="off">–</div></div>
-      </div>
-      <p class="hint" id="target-verdict" style="margin-top:8px"></p>
-    </div>
-    <canvas id="tc" width="600" height="600" aria-label="Target with readings"></canvas>
+    <label class="slider">Jumpiness: how much its score changes between runs <output id="jn-o"></output><input type="range" id="jn" min="0" max="15" value="3"></label>
+    <label class="slider">Lean: always too harsh (−) or too generous (+) <output id="jb-o"></output><input type="range" id="jb" min="-20" max="10" value="-15"></label>
   </div>
+  <div class="row" style="margin:6px 0 14px">
+    <button class="primary" id="jrun">Run 20 times</button>
+    <button data-p="2,0">Good judge</button>
+    <button data-p="2,-15">Steady but harsh</button>
+    <button data-p="13,0">Fair on average, jumpy</button>
+  </div>
+  <div class="runs" id="runs"></div>
+  <div class="runs-x" id="runs-x"></div>
+  <div class="stats">
+    <div><div class="hint">Average score</div><div class="big" id="j-avg">–</div></div>
+    <div><div class="hint">Typical jump (std. dev.)</div><div class="big" id="j-sd">–</div></div>
+    <div><div class="hint">Off by (bias)</div><div class="big" id="j-bias">–</div></div>
+  </div>
+  <p class="hint" id="j-cap" style="margin:10px 0 0"></p>
 </div>
 
-<p>How do you check a bathroom scale? You put something on it whose weight you already know, like a 5 kg bag of rice. So what's the bag of rice for an AI judge?</p>
+<div class="term"><span class="lab">The proper terms</span><dl>
+  <dt>Variance</dt><dd>How much the scores jump around between runs. The usual way to measure it is the <em>standard deviation</em>: roughly, how far a typical score lands from the average. High variance means any single run can't be trusted, but averaging many runs helps.</dd>
+  <dt>Bias</dt><dd>How far off the <em>average</em> score is from the correct one. A judge that's always one point too harsh has a bias of −1. Averaging more runs does nothing for bias.</dd>
+  <dt>Reliability vs. validity</dt><dd>Reliable means you get the same result every time (low variance). Valid means the result is actually correct (low bias, too). The harsh bathroom scale is reliable but not valid.</dd>
+</dl></div>
+
+<p>Notice the harsh judge: very steady, always wrong, and nothing in its own scores gives that away. You only saw it because the expert's 4 was marked in green. So how do you check a bathroom scale? You put something on it whose weight you already know, like a 5 kg bag of rice. What's the bag of rice for an AI judge?</p>
 
 <!-- 5 -->
 <h2><span class="n">5</span>Who checks the judge?</h2>
 <p>It's tempting to say the help article is the bag of rice. But there are two different checks here, and the article only helps with one:</p>
 <div class="pg" style="padding:0;overflow:hidden">
-<table style="width:100%;border-collapse:collapse;font-size:.9rem">
-  <thead><tr style="background:var(--surface-2);text-align:left"><th style="padding:10px 14px">What we check</th><th style="padding:10px 14px">Against what</th><th style="padding:10px 14px">Who provides it</th></tr></thead>
+<table class="plain">
+  <thead><tr><th>What we check</th><th>Against what</th><th>Who provides it</th></tr></thead>
   <tbody>
-    <tr><td style="padding:10px 14px;border-top:1px solid var(--line)">The bot's answer</td><td style="padding:10px 14px;border-top:1px solid var(--line)">The right answer</td><td style="padding:10px 14px;border-top:1px solid var(--line)">Help article</td></tr>
-    <tr><td style="padding:10px 14px;border-top:1px solid var(--line)">The judge's score</td><td style="padding:10px 14px;border-top:1px solid var(--line)">The <em>right</em> score</td><td style="padding:10px 14px;border-top:1px solid var(--line)"><strong>An expert person</strong></td></tr>
+    <tr><td>The bot's answer</td><td>The right answer</td><td>Help article</td></tr>
+    <tr><td>The judge's score</td><td>The <em>right</em> score</td><td><strong>An expert person</strong></td></tr>
   </tbody>
 </table>
 </div>
-<p>The article says "30 days". It can't tell you whether "a month" deserves a 5, a 4 or a fail. A person has to decide that. So the bag of rice is a set of answers that <strong>an expert has already scored by hand</strong>. Then we run the AI judge on the same answers and see how often it agrees with the expert.</p>
+<p>The article says "30 days". It can't tell you whether "a month" deserves a 5, a 4 or a fail. A person has to decide that. So the bag of rice is a set of answers that <strong>an expert has already marked by hand</strong>. Then we run the AI judge on the same answers and see how often it agrees.</p>
 <p>It's like hiring a new teacher. Before trusting them with the whole class, you give them a few papers you've already marked and see if their marks match yours.</p>
-<p>Try it. You're the expert. Mark these eight answers to <em>“How long do I have to return something?”</em> The right answer is <em>“30 days of purchase.”</em> Then see what the AI judge said.</p>
+<p>The judge's job here is to <strong>flag bad answers</strong> before customers see them. You're the expert. Mark each of these answers to <em>“How long do I have to return something?”</em> as good or bad. The right answer is <em>“30 days of purchase.”</em></p>
 
 <div class="pg" id="grade">
   <div class="pg-h"><span class="pg-tag">Try it</span><span class="pg-title">You vs. the AI judge</span><span class="hint" id="grade-count"></span></div>
   <div id="gq"></div>
   <div class="row" style="margin-top:12px"><button class="primary" id="reveal" disabled>Compare with the AI judge</button><button id="regrade">Reset</button></div>
-  <div id="grade-out" style="margin-top:14px"></div>
+  <div id="grade-out" style="margin-top:16px"></div>
 </div>
 
-<p>The expert's marked answers can be used in two ways:</p>
-<ul>
-  <li><strong>To teach the judge.</strong> Show it some marked examples so it learns what a 4 looks like.</li>
-  <li><strong>To test the judge.</strong> See how often it agrees with the expert.</li>
-</ul>
-<p>Never test with the same examples you taught with. That's like giving students the exam questions the night before: a perfect score only proves they memorised the answers. Keep them apart, for example 20 marked answers for teaching and 30 different ones for testing. (In machine learning this is called a <em>train/test split</em>.)</p>
+<p>There are four ways each answer can end up, and each one has a name:</p>
+<div class="term"><span class="lab">The proper terms</span><dl>
+  <dt>Labels / ground truth</dt><dd>The expert's marks. They're what we treat as correct.</dd>
+  <dt>Confusion matrix</dt><dd>The 2 × 2 table above: what the judge said versus what the expert said.</dd>
+  <dt>True positive / true negative</dt><dd>The judge got it right: it flagged a bad answer, or passed a good one. ("Positive" just means "flagged". It isn't a compliment.)</dd>
+  <dt>False positive</dt><dd>A false alarm: the judge flagged an answer that was actually fine.</dd>
+  <dt>False negative</dt><dd>A miss: a bad answer slipped through.</dd>
+  <dt>Precision</dt><dd><em>When the judge says “bad”, how often is it right?</em> Flagged-and-really-bad ÷ everything flagged. Low precision means lots of false alarms.</dd>
+  <dt>Recall</dt><dd><em>Of all the really bad answers, how many did the judge catch?</em> Caught ÷ all bad. Low recall means bad answers reach customers.</dd>
+  <dt>Accuracy</dt><dd>How often the judge and expert agreed, overall. Easy to read, but misleading when most answers are good: a judge that never flags anything still looks accurate.</dd>
+  <dt>Cohen's kappa</dt><dd>Agreement after removing the part you'd expect from pure luck. 1 means perfect, 0 means no better than guessing, and anything above about 0.6 is usually considered decent.</dd>
+  <dt>F1 score</dt><dd>One number that combines precision and recall. It's only high when both are high.</dd>
+</dl></div>
+
+<p>Play with the strictness slider after you compare. A stricter judge catches more bad answers (higher recall) but raises more false alarms (lower precision). A gentler one does the opposite. You can't max out both by changing strictness. You have to choose which mistake costs you more.</p>
+<p>One more thing: "four weeks" is honestly debatable. If you asked two experts, they might disagree. That's normal, and it's worth measuring too. If two experts only agree 80% of the time, no judge can be expected to agree with them 95% of the time.</p>
+<div class="term"><span class="lab">The proper term</span><dl>
+  <dt>Inter-annotator agreement</dt><dd>How often two human experts agree with each other. It sets a ceiling on how well any judge can match "the" expert.</dd>
+</dl></div>
+
+<p>The expert's marked answers can be used in two ways: to <strong>teach</strong> the judge (show it marked examples in its prompt), and to <strong>test</strong> it. Never test with the same examples you taught with. That's like giving students the exam questions the night before: a perfect score only proves they memorised them. Keep them apart, for example 20 marked answers for teaching and 30 different ones for testing.</p>
+<div class="term"><span class="lab">The proper term</span><dl>
+  <dt>Train/test split</dt><dd>Keeping the examples you learn or tune from separate from the examples you measure with.</dd>
+</dl></div>
 
 <!-- 6 -->
 <h2><span class="n">6</span>When everyone is wrong together</h2>
@@ -244,13 +316,16 @@ footer{margin-top:4em;padding-top:1.4em;border-top:1px solid var(--line);color:v
 <p>Picture a group of friends all using the same old map. They all agree on the route, and they all end up at a shop that closed last year.</p>
 
 <div class="pg" id="stale">
-  <div class="pg-h"><span class="pg-tag">Try it</span><span class="pg-title">Everyone trusts the same article</span></div>
+  <div class="pg-h"><span class="pg-tag">Example</span><span class="pg-title">Everyone trusts the same article</span></div>
   <div class="row" style="margin-bottom:12px"><button id="stale-btn" aria-pressed="false">Change the policy to 14 days</button></div>
   <div class="chain" id="chain"></div>
   <p class="hint" id="stale-cap" style="margin:12px 0 0"></p>
 </div>
 
-<p>An eval tells you whether the bot <em>agrees with your right answers</em>. It doesn't tell you whether those answers are still true. If the help article is out of date, the eval says everything is fine while customers get wrong answers. Keeping the right answers up to date is part of running an eval.</p>
+<p>An eval tells you whether the bot <em>agrees with your right answers</em>. It doesn't tell you whether those answers are still true. Keeping them up to date is part of running an eval.</p>
+<div class="term"><span class="lab">The proper term</span><dl>
+  <dt>Stale ground truth (a kind of drift)</dt><dd>The world changed, but your "right answers" didn't. <em>Drift</em> is the general name for the real world moving away from what your test assumes.</dd>
+</dl></div>
 
 <!-- 7 -->
 <h2><span class="n">7</span>Where do the test questions come from?</h2>
@@ -265,7 +340,13 @@ footer{margin-top:4em;padding-top:1.4em;border-top:1px solid var(--line);color:v
   <p class="hint" id="slice-cap" style="margin:12px 0 0"></p>
 </div>
 
-<p>The fix is to <strong>score each group of questions separately</strong>, instead of one big average. Two more habits help. <strong>Add extra hard questions on purpose</strong>: find them in complaints and conversations that got passed to a human, and write some yourself if you can't find enough. And <strong>care most about the mistakes that cost the most</strong>, not the ones that happen most often. One wrong answer about a bank dispute can hurt more than fifty slightly vague answers about refund status.</p>
+<p>The fix is to <strong>score each group of questions separately</strong>, instead of one big average. Two more habits help. <strong>Add extra hard questions on purpose</strong>, instead of leaving it to chance. And <strong>care most about the mistakes that cost the most</strong>, not the ones that happen most often. One wrong answer about a bank dispute can hurt more than fifty slightly vague answers about refund status.</p>
+<div class="term"><span class="lab">The proper terms</span><dl>
+  <dt>Distribution</dt><dd>The mix of questions: how often each kind shows up. Random sampling copies the real mix, easy questions and all.</dd>
+  <dt>Slice</dt><dd>One group of questions scored on its own, like "hard cases".</dd>
+  <dt>Stratified sampling</dt><dd>Picking test questions group by group, so small groups get enough questions to measure.</dd>
+  <dt>Cost-weighted scoring</dt><dd>Counting expensive mistakes more heavily than cheap ones.</dd>
+</dl></div>
 
 <!-- 8 -->
 <h2><span class="n">8</span>Did it actually get better?</h2>
@@ -277,7 +358,7 @@ footer{margin-top:4em;padding-top:1.4em;border-top:1px solid var(--line);color:v
   <li><strong>The luck of which questions you picked.</strong> We only have 10 hard questions. A different 10 might have shown no improvement at all. Rerunning the same 10 doesn't fix this. Only <em>more questions</em> does.</li>
 </ol>
 <p>It's like flipping a coin. Get 7 heads out of 10 flips and you can't say the coin is unfair, because that happens often enough by chance. Get 140 heads out of 200 flips and now you can.</p>
-<p>The demo below shows the second kind of luck. Each dot is one eval: we pick a fresh set of questions and score the bot once. We decide how good each prompt <em>really</em> is, then see how often the eval notices the difference.</p>
+<p>The demo shows the second kind of luck. We decide how good each prompt <em>really</em> is. Then we run 200 evals of each, every time with a fresh set of questions, and draw a bar for how often each score came up.</p>
 
 <div class="pg" id="noisepg">
   <div class="pg-h"><span class="pg-tag">Try it</span><span class="pg-title">Is the improvement real?</span></div>
@@ -287,34 +368,47 @@ footer{margin-top:4em;padding-top:1.4em;border-top:1px solid var(--line);color:v
   </div>
   <label class="slider">Number of questions in each eval <output id="nq-o"></output><input type="range" id="nq" min="0" max="7" value="1"></label>
   <div class="row" style="margin:6px 0 12px"><button class="primary" id="sim">Run 200 evals of each</button>
-    <div class="legend"><span><i class="sw" style="background:var(--old)"></i>Old prompt</span><span><i class="sw" style="background:var(--accent)"></i>New prompt</span></div>
+    <div class="legend"><span><i class="sw" style="background:var(--old)"></i>Old prompt (above the line)</span><span><i class="sw" style="background:var(--accent)"></i>New prompt (below)</span></div>
   </div>
-  <canvas id="nc" width="1200" height="520" aria-label="Scores from 200 evals of each prompt"></canvas>
-  <div class="row" style="margin-top:12px;gap:24px">
+  <canvas id="nc" width="1200" height="560" aria-label="How often each score came up, for each prompt"></canvas>
+  <div class="stats">
     <div><div class="hint">Evals where the new one didn't look better</div><div class="big" id="worse">–</div></div>
-    <div style="flex:1;min-width:200px"><p class="hint" id="noise-cap" style="margin:0"></p></div>
+    <div><div class="hint">New prompt, middle 95% of scores</div><div class="big" id="ci">–</div></div>
   </div>
+  <p class="hint" id="noise-cap" style="margin:10px 0 0"></p>
 </div>
 
-<p>With 10 questions, the new prompt really is better, yet the eval often fails to show it, and one eval's score can land almost anywhere. With a few hundred questions, the two groups of dots separate clearly. Before believing an improvement, check that the gap is bigger than the normal up-and-down from luck.</p>
+<p>With 10 questions, the new prompt really is better, yet the eval often fails to show it, and one eval's score can land almost anywhere. With a few hundred questions, the two shapes separate clearly. Before believing an improvement, check that the gap is bigger than the normal up-and-down from luck.</p>
+<div class="term"><span class="lab">The proper terms</span><dl>
+  <dt>Sample size</dt><dd>How many questions are in the eval. Usually written <em>n</em>.</dd>
+  <dt>Sampling error</dt><dd>The up-and-down in the score that comes purely from which questions happened to be picked.</dd>
+  <dt>Confidence interval</dt><dd>A range that the true score probably sits in. The demo's "middle 95%" works like a 95% confidence interval. It gets narrower as <em>n</em> grows, roughly halving each time you have four times as many questions.</dd>
+  <dt>Statistically significant</dt><dd>The gap is big enough that luck alone is an unlikely explanation.</dd>
+  <dt>Paired comparison</dt><dd>Comparing old and new on the <em>same</em> questions, one question at a time. Because it removes the "which questions" luck, it spots real changes with fewer questions.</dd>
+</dl></div>
 
 <!-- 9 -->
 <h2><span class="n">9</span>Not enough hard questions? Make some up</h2>
 <p>So 10 hard questions is too few to trust. But hard questions are rare by nature. Last month only 10 customers were about to dispute a charge with their bank. We can't wait a year for 200 more.</p>
-<p>The answer is to <strong>make some up</strong>, usually by asking an AI to write them. (This is called <em>synthetic data</em>.) But remember the problem from section 7: made-up questions come out neat and polite, and real customers don't write like that. Four habits keep fake questions useful:</p>
+<p>The answer is to <strong>make some up</strong>, usually by asking an AI to write them. But remember the problem from section 7: made-up questions come out neat and polite, and real customers don't write like that. Four habits keep fake questions useful:</p>
 <ol>
   <li><strong>Start from real examples.</strong> Show the AI your 10 real hard questions, typos and all, so the fake ones sound like real people.</li>
-  <li><strong>Mix the ingredients on purpose.</strong> Don't just say "write hard questions". List the parts and combine them, so you get variety you chose instead of variety the AI happened to come up with.</li>
+  <li><strong>Mix the ingredients on purpose.</strong> List the parts and combine them, so you get variety you chose instead of variety the AI happened to come up with.</li>
   <li><strong>Have an expert check them.</strong> Some will be impossible, too easy, or have the wrong right answer.</li>
-  <li><strong>Keep the real ones separate.</strong> Use the fake questions for everyday testing, and save the real ones as the final check. If the bot passes 95% of the fake questions and fails the real ones, your fake questions aren't realistic enough.</li>
+  <li><strong>Keep the real ones separate.</strong> Use the fake questions for everyday testing and save the real ones as the final check. If the bot passes 95% of the fake questions and fails the real ones, your fake questions aren't realistic enough.</li>
 </ol>
 
 <div class="pg" id="mix">
-  <div class="pg-h"><span class="pg-tag">Try it</span><span class="pg-title">Mix the ingredients</span><span class="hint" id="mix-count"></span></div>
+  <div class="pg-h"><span class="pg-tag">Example</span><span class="pg-title">Mix the ingredients</span><span class="hint" id="mix-count"></span></div>
   <div id="mix-ctl" style="display:grid;gap:10px"></div>
   <div class="card" style="margin-top:14px"><h4>A made-up customer message</h4><div id="mix-out" style="font-family:var(--serif);font-size:1.05rem"></div></div>
-  <p class="hint" style="margin:10px 0 0">A real setup would ask an AI to write each combination in a customer's voice. This demo just glues pieces together, but the idea is the same: every combination is a new test question.</p>
+  <p class="hint" style="margin:10px 0 0">A real setup would ask an AI to write each combination in a customer's voice. This example just glues pieces together, but the idea is the same: every combination is a new test question.</p>
 </div>
+
+<div class="term"><span class="lab">The proper terms</span><dl>
+  <dt>Synthetic data</dt><dd>Test questions (or answers) that were generated instead of collected from real use.</dd>
+  <dt>Coverage</dt><dd>How many of the situations you care about the eval actually tests.</dd>
+</dl></div>
 
 <!-- 10 -->
 <h2><span class="n">10</span>Learn from real chats</h2>
@@ -340,33 +434,53 @@ footer{margin-top:4em;padding-top:1.4em;border-top:1px solid var(--line);color:v
   <div class="row"><button id="loop-toggle">Pause</button></div>
 </div>
 
+<div class="term"><span class="lab">The proper terms</span><dl>
+  <dt>Offline eval</dt><dd>Testing before release, on a fixed set of questions. Everything up to section 9.</dd>
+  <dt>Online eval (or monitoring)</dt><dd>Measuring the bot while real customers use it: requests for a human, thumbs down, complaints.</dd>
+  <dt>Error analysis</dt><dd>Reading failures one by one and sorting them into buckets. It's slow, unglamorous, and usually the most useful hour you'll spend.</dd>
+</dl></div>
+
 <!-- 11 -->
 <h2><span class="n">11</span>Teaching to the test</h2>
 <p>Now the team has a good eval. Everyone tweaks the prompt, runs the eval, keeps the tweak if the score went up, and repeats. After 50 tweaks the score has climbed from 70% to 94%. Is the bot really 24 points better?</p>
 <p>Probably not. Two things are going on:</p>
 <ol>
-  <li><strong>The prompt learns the test.</strong> Each tweak gets chosen because it helps <em>these exact questions</em>. It's a student who has memorised last year's exam: great on that paper, no better on a new one. (In machine learning this is called <em>overfitting</em>.)</li>
+  <li><strong>The prompt learns the test.</strong> Every tweak helps some questions and hurts others. We keep the tweaks that happen to suit <em>these exact questions</em>. It's a student who has memorised last year's exam: great on that paper, no better on a new one.</li>
   <li><strong>We keep the lucky results.</strong> In section 8 we saw that scores go up and down by luck. Try 50 tweaks and keep only the ones that scored higher, and some of those "wins" were just lucky runs.</li>
 </ol>
-<p>Watch it happen. Each step tries one tweak and keeps it only if the score on the test goes up. The second line shows how the same bot does on questions it has never been tuned on.</p>
+<p>The demo simulates this. Each test question reacts to the prompt in its own way. Each step tries a random tweak and keeps it only if the score on the test goes up. The green line shows how the same bot does on 1,000 questions it has never been tuned on.</p>
 
 <div class="pg" id="overfit">
   <div class="pg-h"><span class="pg-tag">Try it</span><span class="pg-title">The score you tune on vs. the real score</span></div>
   <label class="slider">Questions in the test we keep tuning on <output id="of-n-o"></output><input type="range" id="of-n" min="0" max="3" value="1"></label>
   <div class="row" style="margin:6px 0 12px"><button class="primary" id="of-run">Try 50 tweaks</button>
-    <div class="legend"><span><i class="sw" style="background:var(--accent)"></i>Test we tune on</span><span><i class="sw" style="background:var(--pass)"></i>Questions it's never seen</span></div>
+    <div class="legend"><span><i class="sw" style="background:var(--accent)"></i>Test we tune on</span><span><i class="sw" style="background:var(--pass)"></i>1,000 questions it's never seen</span></div>
   </div>
   <canvas id="oc" width="1200" height="560" aria-label="Score over 50 tweaks"></canvas>
-  <div class="row" style="margin-top:12px;gap:24px">
+  <div class="stats">
     <div><div class="hint">Test we tune on</div><div class="big" id="of-a">–</div></div>
     <div><div class="hint">Never-seen questions</div><div class="big" id="of-b">–</div></div>
-    <div style="flex:1;min-width:200px"><p class="hint" id="of-cap" style="margin:0"></p></div>
   </div>
+  <p class="hint" id="of-cap" style="margin:10px 0 0"></p>
 </div>
 
-<p>The fix is to keep <strong>a locked set of questions</strong> that nobody tunes on. You only check it once in a while, like a final exam nobody has seen. Keep adding fresh real chats to it, and keep watching what real customers do. There's a famous saying for this, known as Goodhart's law: <em>when a number becomes the goal, it stops being a good measure.</em></p>
+<p>The fix is to keep <strong>a locked set of questions</strong> that nobody tunes on. Check it only once in a while, like a final exam nobody has seen. Keep adding fresh real chats to it, and keep watching what real customers do.</p>
+<div class="term"><span class="lab">The proper terms</span><dl>
+  <dt>Overfitting</dt><dd>Getting better at the specific test questions without getting better at the job.</dd>
+  <dt>Held-out set</dt><dd>The locked set of questions that nobody tunes on, kept back to measure honestly.</dd>
+  <dt>Goodhart's law</dt><dd><em>When a number becomes the goal, it stops being a good measure.</em></dd>
+</dl></div>
 
-<div class="callout"><strong>Still being worked out:</strong> how to write a good marking scheme, and how to tell when the eval itself needs to change. More sections coming.</div>
+<!-- glossary -->
+<h2><span class="n">★</span>All the terms in one place</h2>
+<div class="pg" style="padding:0;overflow:hidden">
+<table class="plain">
+  <thead><tr><th>Term</th><th>In plain words</th><th>§</th></tr></thead>
+  <tbody id="gloss"></tbody>
+</table>
+</div>
+
+<div class="callout"><strong>Still being worked out:</strong> how to write a good rubric, and whether to score answers out of 5 or as a simple pass/fail. More sections coming.</div>
 
 <footer>Written as a back-and-forth of questions and answers: ask, answer, poke at the weak spot, repeat. All the demos run in your browser. The bots and judges in them are simulated, not real AIs.</footer>
 </main>
@@ -376,178 +490,205 @@ footer{margin-top:4em;padding-top:1.4em;border-top:1px solid var(--line);color:v
 const $ = (s, r = document) => r.querySelector(s);
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const gauss = () => { let u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+const pct = v => Math.round(v * 100) + '%';
+const redraws = [];
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => redraws.forEach(f => f()));
 
-/* ---------- 2. pipeline ---------- */
-{
-  const steps = [...document.querySelectorAll('#pipe .st')];
-  const caps = [
-    'A question, ideally a real one a customer actually asked.',
-    'The thing we are testing: the bot with Monday\'s instructions.',
-    'Whatever the bot said this time. Ask again and it might word it a bit differently.',
-    'What a good answer looks like, taken from the help article.',
-    'The grader compares the bot\'s answer with the right answer and gives a score. Then we do the same for every question.'
-  ];
-  const cap = $('#pipe .pipe-cap'), btn = $('#pipe-toggle');
+/* ---------- step-through animations (sections 2 and 10) ---------- */
+function stepper(root, caps, ms) {
+  const steps = [...root.querySelectorAll('.st')], cap = root.querySelector('.pipe-cap'), btn = root.querySelector('button');
   let i = 0, timer = null;
   const show = k => { steps.forEach((s, j) => s.classList.toggle('on', j === k)); cap.textContent = caps[k]; };
-  const play = () => { timer = setInterval(() => { i = (i + 1) % steps.length; show(i); }, 2200); btn.textContent = 'Pause'; };
+  const play = () => { timer = setInterval(() => { i = (i + 1) % steps.length; show(i); }, ms); btn.textContent = 'Pause'; };
   const stop = () => { clearInterval(timer); timer = null; btn.textContent = 'Play'; };
   steps.forEach((s, j) => s.addEventListener('click', () => { stop(); i = j; show(j); }));
   btn.addEventListener('click', () => timer ? stop() : play());
   show(0); if (!reduce) play(); else btn.textContent = 'Play';
 }
+stepper($('#pipe'), [
+  'A question, ideally a real one a customer actually asked.',
+  'The thing we are testing: the bot with Monday\'s instructions.',
+  'Whatever the bot said this time. Ask again and it might word it a bit differently.',
+  'What a good answer looks like, taken from the help article.',
+  'The grader compares the bot\'s answer with the right answer and gives a score. Then we do the same for every question.'
+], 2200);
+stepper($('#loop'), [
+  'Customers use the bot. Every chat is a possible test question.',
+  'Watch for signs of trouble: customers asking for a human, thumbs down, complaints.',
+  'Read those chats. Missing article? Bad answer? Or the customer just wanted a person?',
+  'Turn each one into a test question with its right answer, so the eval knows about it from now on.',
+  'Change the bot, run the eval, and release. Then go back to the start and keep watching.'
+], 2600);
 
-/* ---------- 3. checker ---------- */
+/* ---------- the simulated AI judge, shared by sections 3 and 5 ---------- */
+const WORDS = { a: 1, an: 1, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, ten: 10, fourteen: 14, thirty: 30, sixty: 60, ninety: 90 };
+function durations(t) {
+  const re = /\b(\d+|a|an|one|two|three|four|five|six|seven|ten|fourteen|thirty|sixty|ninety)[\s-]*(day|week|month)s?\b/gi;
+  const out = []; let m;
+  while ((m = re.exec(t))) {
+    const n = /^\d+$/.test(m[1]) ? +m[1] : WORDS[m[1].toLowerCase()], u = m[2].toLowerCase();
+    out.push({ raw: m[0], unit: u, days: n * (u === 'day' ? 1 : u === 'week' ? 7 : 30) });
+  }
+  return out;
+}
+// Returns { score 1–5, why, flaw } where flaw describes a built-in mistake, if one fired.
+function judge(t) {
+  if (/\b(depends|can you share|could you (share|tell)|let me check)\b/i.test(t))
+    return { score: 2, why: 'Marked down for not giving a straight answer.', flaw: 'It punishes answers that ask the customer a follow-up question, even when the answer is right.' };
+  const ds = durations(t);
+  if (!ds.length) {
+    if (/generous|happy to|of course|no problem|!/i.test(t))
+      return { score: 4, why: 'Sounds confident and helpful.', flaw: 'Fooled by a friendly tone. The answer never says how long you have.' };
+    return { score: 2, why: 'Never says how long you have.', flaw: null };
+  }
+  const d = ds.find(x => x.days !== 30 && x.days !== 28) || ds[0];
+  let r;
+  if (d.days === 28) r = { score: 4, why: `Accepts “${d.raw}” as the same as 30 days.`, flaw: 'It treats four weeks (28 days) as 30 days.' };
+  else if (d.days !== 30) return { score: 1, why: `Says “${d.raw}”, but the article says 30 days.`, flaw: null };
+  else if (d.unit === 'day') r = { score: 5, why: 'Same as the article.', flaw: null };
+  else r = { score: 4, why: `“${d.raw}” means about the same, but “30 days” is clearer.`, flaw: null };
+  if (/\b(unless|except|excluding|only if|final)\b|, but\b/i.test(t))
+    r.flaw = (r.flaw ? r.flaw + ' Also, it ' : 'It ') + 'didn\'t notice a rule the article doesn\'t contain.';
+  return r;
+}
+const chip = (cls, txt) => `<span class="chip ${cls}">${txt}</span>`;
+
+/* ---------- 3. exact words vs meaning ---------- */
 {
-  const WORDS = {a:1, an:1, one:1, two:2, three:3, four:4, five:5, six:6, seven:7, ten:10, fourteen:14, thirty:30, sixty:60, ninety:90};
-  const durations = t => {
-    const re = /\b(\d+|a|an|one|two|three|four|five|six|seven|ten|fourteen|thirty|sixty|ninety)[\s-]*(day|week|month)s?\b/gi;
-    const out = []; let m;
-    while ((m = re.exec(t))) {
-      const n = /^\d+$/.test(m[1]) ? +m[1] : WORDS[m[1].toLowerCase()];
-      const u = m[2].toLowerCase();
-      out.push({ raw: m[0], days: n * (u === 'day' ? 1 : u === 'week' ? 7 : 30), unit: u });
-    }
-    return out;
-  };
-  const judge = t => {
-    const ds = durations(t);
-    let score, why = [];
-    if (!ds.length) { score = 2; why.push('Never says how long you have.'); }
-    else {
-      const wrong = ds.find(d => d.days < 28 || d.days > 31);
-      const d = ds[0];
-      if (wrong) { score = 1; why.push(`Says “${wrong.raw}”, but the article says 30 days.`); }
-      else if (d.unit === 'day') { score = 5; why.push('Same as the article.'); }
-      else if (d.unit === 'month') { score = 4; why.push(`“${d.raw}” means about the same, but “30 days” is clearer.`); }
-      else { score = 3; why.push(`“${d.raw}” is ${d.days} days. Close to 30, but not the same.`); }
-      if (score > 1 && /\b(unless|except|but not|excluding|only if)\b/i.test(t)) { score -= 1; why.push('Adds a rule the article doesn\'t mention.'); }
-    }
-    return { score, why };
-  };
   const presets = [
     ['30 days', 'Refunds are available within 30 days of purchase.'],
     ['A month', 'You can get your money back if it\'s been less than a month since you bought it.'],
-    ['Thirty days', 'You have thirty days from purchase to ask for a refund.'],
     ['Four weeks', 'Returns are accepted within four weeks.'],
     ['Wrong', 'You can request a refund within 14 days.'],
-    ['Made-up rule', 'Refunds within 30 days, unless the item was on sale.'],
-    ['Vague', 'We have a generous refund policy! Contact us for details.'],
+    ['Made-up rule', 'Refunds within 30 days, but sale items are final.'],
+    ['Friendly, no facts', 'We have a generous refund policy! Contact us for details.'],
+    ['Asks back', 'It depends a little. It\'s 30 days from purchase. Can you share your order date so I can check?'],
   ];
   const ans = $('#ans'), host = $('#presets');
   presets.forEach(([l, t]) => { const b = document.createElement('button'); b.textContent = l; b.onclick = () => { ans.value = t; run(); }; host.append(b); });
-  const chip = (cls, txt) => `<span class="chip ${cls}">${txt}</span>`;
   function run() {
-    const t = ans.value;
-    const rx = /\b30 days?\b/i.test(t);
+    const t = ans.value, rx = /\b30[\s-]*days?\b/i.test(t);
     $('#rx').innerHTML = (rx ? chip('pass', '✓ Pass') : chip('fail', '✗ Fail')) +
       `<p class="hint" style="margin:8px 0 0">${rx ? 'The words “30 days” are there.' : 'The words “30 days” aren\'t there.'}</p>`;
     const j = judge(t);
-    const cls = j.score >= 4 ? 'pass' : j.score === 3 ? 'warn' : 'fail';
-    $('#jd').innerHTML = `${chip(cls, j.score + ' / 5')}<p class="hint" style="margin:8px 0 0">${j.why.join(' ')}</p>`;
+    $('#jd').innerHTML = chip(j.score >= 4 ? 'pass' : j.score === 3 ? 'warn' : 'fail', j.score + ' / 5') +
+      `<p class="hint" style="margin:8px 0 0">${j.why}</p>` +
+      (j.flaw ? `<p style="margin:8px 0 0">${chip('warn', 'Judge flaw')} <span class="hint">${j.flaw}</span></p>` : '');
   }
   ans.addEventListener('input', run);
   ans.value = presets[1][1]; run();
 }
 
-/* ---------- 4. target ---------- */
+/* ---------- 4. run the judge many times ---------- */
 {
-  const c = $('#tc'), ctx = c.getContext('2d'), W = c.width, C = W / 2;
-  const noise = $('#noise'), bias = $('#bias');
-  let shots = [], anim = null;
-  const gauss = () => { let u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
-  function draw() {
-    ctx.clearRect(0, 0, W, W);
-    const line = css('--line'), muted = css('--muted');
-    [260, 195, 130, 65].forEach((r, k) => { ctx.beginPath(); ctx.arc(C, C, r, 0, 7); ctx.fillStyle = k % 2 ? css('--surface-2') : css('--bg'); ctx.fill(); ctx.strokeStyle = line; ctx.lineWidth = 2; ctx.stroke(); });
-    ctx.beginPath(); ctx.arc(C, C, 8, 0, 7); ctx.fillStyle = css('--pass'); ctx.fill();
-    ctx.font = '600 22px ' + css('--sans'); ctx.fillStyle = muted; ctx.textAlign = 'center'; ctx.fillText('bullseye', C, C - 18);
-    shots.forEach(s => { ctx.beginPath(); ctx.arc(s.x, s.y, 9, 0, 7); ctx.fillStyle = css('--accent'); ctx.globalAlpha = .85; ctx.fill(); ctx.globalAlpha = 1; });
+  const TRUE = 4, jn = $('#jn'), jb = $('#jb'), cols = $('#runs'), xs = $('#runs-x');
+  let timer = null;
+  for (let s = 1; s <= 5; s++) {
+    cols.insertAdjacentHTML('beforeend', `<div class="col${s === TRUE ? ' truth' : ''}"></div>`);
+    xs.insertAdjacentHTML('beforeend', `<div>${s}${s === TRUE ? '<small>correct</small>' : ''}</div>`);
   }
-  function stats() {
-    if (!shots.length) { $('#spread').textContent = $('#off').textContent = '–'; $('#target-verdict').textContent = ''; return; }
-    const mx = shots.reduce((a, s) => a + s.x, 0) / shots.length, my = shots.reduce((a, s) => a + s.y, 0) / shots.length;
-    const sp = Math.sqrt(shots.reduce((a, s) => a + (s.x - mx) ** 2 + (s.y - my) ** 2, 0) / shots.length);
-    const off = Math.hypot(mx - C, my - C);
-    const lab = v => v < 25 ? 'low' : v < 60 ? 'medium' : 'high';
-    $('#spread').textContent = lab(sp); $('#off').textContent = lab(off);
-    $('#target-verdict').textContent =
-      sp < 25 && off >= 25 ? 'Grouped but off. Throwing more darts won\'t fix this, because the aim is the problem. Without a bullseye to look at, you\'d never even know.' :
-      sp >= 25 && off < 25 ? 'Centered on average, but any single throw could be anywhere. Averaging many throws helps here.' :
-      sp < 25 ? 'Grouped and on target. This is what we want, but you only know it because you can see the bullseye.' :
-      'Scattered and off target.';
-  }
-  function shoot() {
-    cancelAnimationFrame(anim); shots = [];
-    const ang = -Math.PI / 4, b = +bias.value * 2, n = +noise.value * 1.6;
-    const all = Array.from({ length: 20 }, () => ({ x: C + Math.cos(ang) * b + gauss() * n, y: C + Math.sin(ang) * b + gauss() * n }));
-    if (reduce) { shots = all; draw(); stats(); return; }
-    let k = 0; const step = () => { shots.push(all[k++]); draw(); if (k < all.length) anim = setTimeout(() => requestAnimationFrame(step), 60); else stats(); };
+  const colEls = [...cols.children];
+  const sync = () => { $('#jn-o').textContent = (jn.value / 10).toFixed(1); $('#jb-o').textContent = (jb.value > 0 ? '+' : '') + (jb.value / 10).toFixed(1); };
+  function run() {
+    clearTimeout(timer); colEls.forEach(c => c.innerHTML = '');
+    const noise = jn.value / 10, lean = jb.value / 10;
+    const scores = Array.from({ length: 20 }, () => Math.max(1, Math.min(5, Math.round(TRUE + lean + gauss() * noise))));
+    const finish = () => {
+      const avg = scores.reduce((a, b) => a + b, 0) / 20;
+      const sd = Math.sqrt(scores.reduce((a, b) => a + (b - avg) ** 2, 0) / 20), bias = avg - TRUE;
+      $('#j-avg').textContent = avg.toFixed(1); $('#j-sd').textContent = sd.toFixed(1);
+      $('#j-bias').textContent = (bias > 0 ? '+' : '') + bias.toFixed(1);
+      $('#j-cap').textContent =
+        sd < 0.5 && Math.abs(bias) < 0.5 ? 'Steady and correct. This is what you want, but you only know it\'s correct because the expert\'s score is shown.' :
+        sd < 0.5 ? `Steady but wrong: it almost always says ${Math.round(avg)}. Rerunning it would never reveal the problem. Low variance, high bias.` :
+        Math.abs(bias) < 0.5 ? 'Right on average, but any single run could say almost anything. High variance, low bias. Averaging many runs helps here.' :
+        'Jumpy and off in one direction. High variance and high bias.';
+    };
+    const add = k => colEls[scores[k] - 1].insertAdjacentHTML('beforeend', '<div class="dot"></div>');
+    if (reduce) { scores.forEach((_, k) => add(k)); return finish(); }
+    ['#j-avg', '#j-sd', '#j-bias'].forEach(s => $(s).textContent = '…'); $('#j-cap').textContent = '';
+    let k = 0; const step = () => { add(k++); if (k < 20) timer = setTimeout(step, 50); else finish(); };
     step();
   }
-  const sync = () => { $('#noise-o').textContent = noise.value; $('#bias-o').textContent = bias.value; };
-  [noise, bias].forEach(el => el.addEventListener('input', () => { sync(); }));
-  [noise, bias].forEach(el => el.addEventListener('change', shoot));
-  $('#shoot').onclick = shoot;
-  document.querySelectorAll('#target [data-preset]').forEach(b => b.onclick = () => { const [n, bi] = b.dataset.preset.split(','); noise.value = n; bias.value = bi; sync(); shoot(); });
-  sync(); shoot();
-  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', draw);
+  [jn, jb].forEach(el => { el.addEventListener('input', sync); el.addEventListener('change', run); });
+  $('#jrun').onclick = run;
+  document.querySelectorAll('#jruns [data-p]').forEach(b => b.onclick = () => { [jn.value, jb.value] = b.dataset.p.split(','); sync(); run(); });
+  sync(); run();
 }
 
-/* ---------- 5. grading ---------- */
+/* ---------- 5. you vs the judge: confusion matrix, precision, recall ---------- */
 {
   const items = [
-    { t: 'You have 30 days from purchase to request a refund.', j: 1, note: 'Easy one.' },
-    { t: 'You can get a refund within a month of buying.', j: 0, note: 'The judge is too picky. It wants the exact words “30 days”.' },
-    { t: 'Refunds are available for 60 days after purchase.', j: 0, note: 'Wrong number of days. Everyone should fail this.' },
-    { t: 'Thirty days from purchase. Reply with your order number and we\'ll start it.', j: 1, note: 'Right and helpful.' },
-    { t: 'You can request a refund within four weeks.', j: 0, note: '28 days isn\'t 30. People disagree on this one.' },
-    { t: 'Our refund policy is generous! Contact support for details.', j: 1, note: 'The judge is fooled by the friendly tone. The answer never says how long you have.' },
-    { t: '30 days, but sale items are final.', j: 1, note: 'It makes up a rule that isn\'t in the article. The judge doesn\'t notice.' },
-    { t: 'Refunds are available within 30 days of purchase.', j: 1, note: 'Copied word for word from the article.' },
-  ];
+    'You have 30 days from purchase to request a refund.',
+    'You can get a refund within a month of buying.',
+    'Refunds are available for 60 days after purchase.',
+    'Thirty days from purchase. Reply with your order number and we\'ll start it.',
+    'You can request a refund within four weeks.',
+    'Our refund policy is generous! Contact support for details.',
+    '30 days, but sale items are final.',
+    'Refunds are available within 30 days of purchase.',
+    'It depends a little. It\'s 30 days from purchase. Can you share your order date so I can check?',
+    'You have 14 days to return it.',
+  ].map(t => ({ t, j: judge(t) }));
   const host = $('#gq'), mine = Array(items.length).fill(null), pg = $('#grade');
+  let strict = 3; // judge flags an answer as bad when its score is at or below this
   items.forEach((it, i) => {
     const d = document.createElement('div'); d.className = 'gq';
-    d.innerHTML = `<div class="txt">“${it.t}”</div><div class="btns"><button data-v="1" aria-pressed="false">Pass</button><button data-v="0" aria-pressed="false">Fail</button></div><div class="res"></div>`;
+    d.innerHTML = `<span class="num">${i + 1}</span><div class="txt">“${it.t}”</div><div class="btns"><button data-v="good" aria-pressed="false">Good</button><button data-v="bad" aria-pressed="false">Bad</button></div><div class="res"></div>`;
     d.querySelectorAll('button').forEach(b => b.onclick = () => {
-      mine[i] = +b.dataset.v;
-      d.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));
-      update();
+      mine[i] = b.dataset.v; d.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); update();
     });
     host.append(d);
   });
   function update() {
-    const done = mine.filter(v => v !== null).length;
-    $('#grade-count').textContent = `${done} / ${items.length} graded`;
+    const done = mine.filter(Boolean).length;
+    $('#grade-count').textContent = `${done} / ${items.length} marked`;
     $('#reveal').disabled = done < items.length;
     if (pg.classList.contains('revealed')) reveal();
   }
+  const ratio = (a, b) => b ? pct(a / b) : '–';
   function reveal() {
     pg.classList.add('revealed');
-    let agree = 0, cm = [[0, 0], [0, 0]];
+    const cell = { tp: [], fp: [], fn: [], tn: [] };
     host.querySelectorAll('.gq').forEach((d, i) => {
-      const it = items[i], ok = mine[i] === it.j; agree += ok; cm[mine[i]][it.j]++;
-      d.querySelector('.res').innerHTML = `Judge: <span class="chip ${it.j ? 'pass' : 'fail'}">${it.j ? 'Pass' : 'Fail'}</span> ${ok ? '· same as you' : '· <strong>different from you</strong>'}. ${it.note}`;
+      const it = items[i], flagged = it.j.score <= strict, bad = mine[i] === 'bad';
+      const k = flagged ? (bad ? 'tp' : 'fp') : (bad ? 'fn' : 'tn'); cell[k].push(i + 1);
+      const name = { tp: 'caught', fp: 'false alarm', fn: '<strong>missed</strong>', tn: 'correctly passed' }[k];
+      d.querySelector('.res').innerHTML = `Judge: ${it.j.score}/5, ${flagged ? chip('fail', 'flagged bad') : chip('pass', 'passed')} → ${name}. ${it.j.flaw ? 'Flaw: ' + it.j.flaw : it.j.why}`;
     });
-    const pct = Math.round(agree / items.length * 100);
+    const [tp, fp, fn, tn] = ['tp', 'fp', 'fn', 'tn'].map(k => cell[k].length), N = items.length;
+    const prec = tp + fp ? tp / (tp + fp) : null, rec = tp + fn ? tp / (tp + fn) : null;
+    const po = (tp + tn) / N, pe = ((tp + fn) / N) * ((tp + fp) / N) + ((fp + tn) / N) * ((fn + tn) / N);
+    const kappa = pe < 1 ? (po - pe) / (1 - pe) : null;
+    const f1 = prec && rec ? 2 * prec * rec / (prec + rec) : null;
+    const ids = a => a.length ? '#' + a.join(', #') : 'none';
     $('#grade-out').innerHTML = `
-      <div class="row" style="gap:24px;align-items:flex-start">
-        <div><div class="hint">You and the judge agreed</div><div class="big">${agree}/${items.length} · ${pct}%</div></div>
-        <table style="font-size:.85rem;border-collapse:collapse">
-          <tr><td></td><th style="padding:4px 10px">Judge pass</th><th style="padding:4px 10px">Judge fail</th></tr>
-          <tr><th style="padding:4px 10px;text-align:right">You pass</th><td style="text-align:center">${cm[1][1]}</td><td style="text-align:center;color:var(--fail)">${cm[1][0]}</td></tr>
-          <tr><th style="padding:4px 10px;text-align:right">You fail</th><td style="text-align:center;color:var(--fail)">${cm[0][1]}</td><td style="text-align:center">${cm[0][0]}</td></tr>
-        </table>
+      <label class="slider">How strict is the judge? It flags an answer as bad when it scores <output>${strict} or less</output><input type="range" id="strict" min="1" max="4" value="${strict}"></label>
+      <div class="cm">
+        <div></div><div class="h">You said bad</div><div class="h">You said good</div>
+        <div class="h">Judge flagged</div>
+        <div class="c good"><b>${tp}</b><span class="nm">True positive</span> (caught)<div class="ids">${ids(cell.tp)}</div></div>
+        <div class="c bad"><b>${fp}</b><span class="nm">False positive</span> (false alarm)<div class="ids">${ids(cell.fp)}</div></div>
+        <div class="h">Judge passed</div>
+        <div class="c bad"><b>${fn}</b><span class="nm">False negative</span> (missed)<div class="ids">${ids(cell.fn)}</div></div>
+        <div class="c good"><b>${tn}</b><span class="nm">True negative</span> (correctly passed)<div class="ids">${ids(cell.tn)}</div></div>
       </div>
-      <p class="hint" style="margin:10px 0 0">Look at <em>where</em> you disagreed, not just how often. This judge is too picky about exact words and too easily pleased by vague answers. You can fix that by giving it clearer marking instructions, then test it again on a <em>different</em> set of marked answers.</p>`;
+      <div class="metrics">
+        <div class="card"><h4>Precision</h4><div class="big">${ratio(tp, tp + fp)}</div><p>${tp + fp ? `It flagged ${tp + fp} answers, and ${tp} of them really were bad.` : 'It flagged nothing, so precision can\'t be measured.'}</p></div>
+        <div class="card"><h4>Recall</h4><div class="big">${ratio(tp, tp + fn)}</div><p>${tp + fn ? `You marked ${tp + fn} answers bad, and it caught ${tp} of them.` : 'You marked nothing as bad, so there was nothing to catch.'}</p></div>
+        <div class="card"><h4>Accuracy</h4><div class="big">${pct(po)}</div><p>You agreed on ${tp + tn} of ${N} answers.</p></div>
+        <div class="card"><h4>Cohen's kappa</h4><div class="big">${kappa === null ? '–' : kappa.toFixed(2)}</div><p>Agreement after removing the luck part. ${kappa === null ? '' : kappa > 0.6 ? 'Decent.' : kappa > 0.4 ? 'Moderate.' : kappa >= 0.15 ? 'Weak. Not good enough to trust alone.' : 'About as good as guessing.'}</p></div>
+      </div>
+      <p class="hint" style="margin:12px 0 0">F1 score (precision and recall combined): <b>${f1 === null ? '–' : f1.toFixed(2)}</b>. Look at <em>which</em> answers landed in the red boxes. Each one points to a flaw you can fix in the judge's rubric, and then test again on a <em>different</em> set of marked answers.</p>`;
+    const s = $('#strict'); s.addEventListener('input', () => { strict = +s.value; reveal(); $('#strict').focus(); });
   }
   $('#reveal').onclick = reveal;
-  $('#regrade').onclick = () => { mine.fill(null); pg.classList.remove('revealed'); host.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', 'false')); $('#grade-out').innerHTML = ''; update(); };
+  $('#regrade').onclick = () => { mine.fill(null); strict = 3; pg.classList.remove('revealed'); host.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', 'false')); $('#grade-out').innerHTML = ''; update(); };
   update();
 }
 
-/* ---------- 6. stale ---------- */
+/* ---------- 6. stale article ---------- */
 {
   const btn = $('#stale-btn'), chain = $('#chain');
   const render = stale => {
@@ -559,7 +700,7 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
       ['Expert', 'Checks the article, agrees', ['pass', 'Agrees']],
     ];
     chain.innerHTML = rows.map(([w, t, [c, l]], i) =>
-      `<div class="link ${stale && i > 0 && i < 3 ? 'bad' : ''}"><span class="who">${w}</span><span class="what">${t}</span><span class="chip ${c}">${l}</span></div>`).join('');
+      `<div class="link ${stale && i > 0 && i < 3 ? 'bad' : ''}"><span class="who">${w}</span><span class="what">${t}</span>${chip(c, l)}</div>`).join('');
     $('#stale-cap').innerHTML = stale
       ? '<strong>Eval score: 100%. Judge and expert agree 100%. Every customer gets the wrong answer.</strong> The eval can\'t catch this, because every check goes back to the same out-of-date article.'
       : 'Everything matches. Now change the policy but forget to update the article.';
@@ -572,13 +713,9 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------- 7. slices ---------- */
 {
-  const slices = [
-    { name: 'Refund status', n: 400, a: 99 },
-    { name: 'Return window', n: 90, a: 96 },
-    { name: 'Hard cases', n: 10, a: 40 },
-  ];
+  const slices = [{ name: 'Refund status', n: 400, a: 99 }, { name: 'Return window', n: 90, a: 96 }, { name: 'Hard cases', n: 10, a: 40 }];
   const ctl = $('#slice-ctl');
-  slices.forEach((s, i) => {
+  slices.forEach(s => {
     const d = document.createElement('div'); d.className = 'card';
     d.innerHTML = `<h4>${s.name}</h4>
       <label class="slider">Questions <output></output><input type="range" min="0" max="500" step="5" value="${s.n}" data-k="n"></label>
@@ -588,75 +725,83 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   });
   ctl.lastElementChild.style.gridColumn = '1/-1';
   function render() {
-    ctl.querySelectorAll('.card').forEach((d, i) => {
-      const o = d.querySelectorAll('output'); o[0].textContent = slices[i].n; o[1].textContent = slices[i].a + '%';
-    });
+    ctl.querySelectorAll('.card').forEach((d, i) => { const o = d.querySelectorAll('output'); o[0].textContent = slices[i].n; o[1].textContent = slices[i].a + '%'; });
     const N = slices.reduce((a, s) => a + s.n, 0);
     const overall = N ? slices.reduce((a, s) => a + s.n * s.a, 0) / N : 0;
     const worst = slices.reduce((w, s) => (s.n && (!w || s.a < w.a)) ? s : w, null);
     const bar = (name, v, cls) => `<div class="bar ${cls}"><span>${name}</span><div class="track"><div class="fill" style="width:${v}%"></div></div><span class="v">${v.toFixed(0)}%</span></div>`;
     $('#bars').innerHTML = bar('<strong>Overall</strong>', overall, 'overall') + slices.map(s => bar(s.name, s.a, s === worst && s.a < overall - 10 ? 'worst' : '')).join('');
-    const gap = worst ? overall - worst.a : 0;
-    $('#slice-cap').innerHTML = gap > 10
+    $('#slice-cap').innerHTML = worst && overall - worst.a > 10
       ? `The overall score is <strong>${overall.toFixed(0)}%</strong>, but <strong>${worst.name}</strong> is only ${worst.a}%. Those ${worst.n} questions are just ${(worst.n / N * 100).toFixed(0)}% of the test, so they barely move the average.`
       : 'No group is hiding far below the average right now. Try making one group small and bad.';
   }
   render();
 }
 
-/* ---------- 8. noise ---------- */
+/* ---------- 8. sampling error: histogram of 200 evals ---------- */
 {
-  const NQ = [5, 10, 20, 50, 100, 200, 500, 1000];
+  const NQ = [5, 10, 20, 50, 100, 200, 500, 1000], R = 200;
   const po = $('#po'), pn = $('#pn'), nq = $('#nq'), c = $('#nc'), ctx = c.getContext('2d');
-  let res = null, timer = null;
+  let res = null, shown = 0, timer = null;
   const binom = (n, p) => { let k = 0; for (let i = 0; i < n; i++) if (Math.random() < p) k++; return k / n; };
   const sync = () => { $('#po-o').textContent = po.value + '%'; $('#pn-o').textContent = pn.value + '%'; $('#nq-o').textContent = NQ[nq.value]; };
-  function draw(upto) {
-    const W = c.width, H = c.height, pad = 50, mid = H / 2;
-    ctx.clearRect(0, 0, W, H);
+  function draw() {
+    const W = c.width, H = c.height, pad = 50, mid = H / 2, half = mid - 64;
     const x = v => pad + v * (W - 2 * pad);
-    ctx.strokeStyle = css('--line'); ctx.lineWidth = 2; ctx.fillStyle = css('--muted'); ctx.font = '22px ' + css('--sans'); ctx.textAlign = 'center';
-    ctx.beginPath(); ctx.moveTo(pad, mid); ctx.lineTo(W - pad, mid); ctx.stroke();
-    for (let v = 0; v <= 100; v += 20) { ctx.fillText(v + '%', x(v / 100), mid + 8); }
-    ctx.textAlign = 'left'; ctx.fillText('Old', 8, 30); ctx.fillText('New', 8, H - 12);
-    const truth = (p, col, up) => { ctx.strokeStyle = col; ctx.setLineDash([6, 6]); ctx.beginPath(); ctx.moveTo(x(p), up ? 20 : mid + 22); ctx.lineTo(x(p), up ? mid - 22 : H - 20); ctx.stroke(); ctx.setLineDash([]); };
-    truth(po.value / 100, css('--old'), true); truth(pn.value / 100, css('--accent'), false);
-    if (!res) return;
-    const BINS = 50, r = 5, stackO = {}, stackN = {};
-    for (let i = 0; i < upto; i++) {
-      [[res.o[i], stackO, -1, css('--old')], [res.n[i], stackN, 1, css('--accent')]].forEach(([v, st, dir, col]) => {
-        const b = Math.round(v * BINS); st[b] = (st[b] || 0) + 1;
-        const y = mid + dir * (26 + (st[b] - 1) * (r * 2 + 1) + r);
-        if (y < 4 || y > H - 4) return;
-        ctx.beginPath(); ctx.arc(x(b / BINS), y, r, 0, 7); ctx.fillStyle = col; ctx.fill();
-      });
+    ctx.clearRect(0, 0, W, H);
+    const n = NQ[nq.value];
+    // one bar per possible score when there are few, otherwise 2-point-wide bins
+    const bins = n <= 50 ? n : 50, bw = (W - 2 * pad) / (bins + 1);
+    const binOf = v => Math.round(v * bins);
+    const co = new Array(bins + 1).fill(0), cn = new Array(bins + 1).fill(0);
+    if (res) for (let i = 0; i < shown; i++) { co[binOf(res.o[i])]++; cn[binOf(res.n[i])]++; }
+    const max = Math.max(1, ...co, ...cn);
+    for (let b = 0; b <= bins; b++) {
+      const cx = x(b / bins), w = Math.max(2, bw * 0.8);
+      ctx.fillStyle = css('--old'); const ho = co[b] / max * half; ctx.fillRect(cx - w / 2, mid - 14 - ho, w, ho);
+      ctx.fillStyle = css('--accent'); const hn = cn[b] / max * half; ctx.fillRect(cx - w / 2, mid + 14, w, hn);
     }
+    ctx.strokeStyle = css('--line'); ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(pad, mid); ctx.lineTo(W - pad, mid); ctx.stroke();
+    ctx.fillStyle = css('--muted'); ctx.font = '22px ' + css('--sans'); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    for (let v = 0; v <= 100; v += 20) { ctx.fillStyle = css('--bg'); ctx.fillRect(x(v / 100) - 28, mid - 12, 56, 24); ctx.fillStyle = css('--muted'); ctx.fillText(v + '%', x(v / 100), mid); }
+    ctx.textBaseline = 'alphabetic';
+    // dashed line at the true value, labelled in the margin above (old) or below (new) the bars
+    const truth = (p, col, up, label) => {
+      ctx.strokeStyle = col; ctx.setLineDash([6, 6]); ctx.lineWidth = 3; ctx.beginPath();
+      ctx.moveTo(x(p), up ? 40 : mid + 14); ctx.lineTo(x(p), up ? mid - 14 : H - 40); ctx.stroke(); ctx.setLineDash([]);
+      ctx.font = '600 22px ' + css('--sans'); ctx.fillStyle = col; ctx.textAlign = 'center';
+      ctx.fillText(label, Math.min(W - 130, Math.max(130, x(p))), up ? 28 : H - 14);
+    };
+    truth(po.value / 100, css('--old'), true, 'old, really ' + po.value + '%');
+    truth(pn.value / 100, css('--accent'), false, 'new, really ' + pn.value + '%');
   }
   function sim() {
     clearTimeout(timer);
-    const n = NQ[nq.value], a = po.value / 100, b = pn.value / 100, R = 200;
+    const n = NQ[nq.value], a = po.value / 100, b = pn.value / 100;
     res = { o: [], n: [] };
     for (let i = 0; i < R; i++) { res.o.push(binom(n, a)); res.n.push(binom(n, b)); }
-    const worse = res.o.filter((o, i) => res.n[i] <= o).length / R;
     const finish = () => {
-      draw(R);
-      $('#worse').textContent = Math.round(worse * 100) + '%';
-      const lo = Math.min(...res.n), hi = Math.max(...res.n);
-      $('#noise-cap').innerHTML = (b <= a)
+      shown = R; draw();
+      const worse = res.o.filter((o, i) => res.n[i] <= o).length / R;
+      const sorted = [...res.n].sort((p, q) => p - q), lo = sorted[Math.floor(R * 0.025)], hi = sorted[Math.ceil(R * 0.975) - 1];
+      $('#worse').textContent = pct(worse); $('#ci').textContent = `${pct(lo)}–${pct(hi)}`;
+      $('#noise-cap').innerHTML = b <= a
         ? 'The new prompt isn\'t really better here, so the eval <em>should</em> show no improvement.'
-        : `With <strong>${n}</strong> questions, the new prompt scored anywhere from ${Math.round(lo * 100)}% to ${Math.round(hi * 100)}%, even though it never actually changed. ` +
-          (worse > .1 ? 'At this size, one eval is a bit of a gamble. Add more questions before you trust the improvement.' : worse > .02 ? 'Usually right, but not always.' : 'At this size, the improvement shows up almost every time.');
+        : `With <strong>${n}</strong> questions, most evals of the new prompt scored between ${pct(lo)} and ${pct(hi)}, even though it's really ${pct(b)} every time. ` +
+          (worse > 0.1 ? 'At this size, one eval is a bit of a gamble. Add more questions before you trust the improvement.' : worse > 0.02 ? 'Usually right, but not always.' : 'At this size, the improvement shows up almost every time.');
     };
     if (reduce) return finish();
-    let k = 0; const step = () => { k = Math.min(R, k + 8); draw(k); if (k < R) timer = setTimeout(step, 16); else finish(); };
-    $('#worse').textContent = '…'; step();
+    ['#worse', '#ci'].forEach(s => $(s).textContent = '…'); shown = 0;
+    const step = () => { shown = Math.min(R, shown + 8); draw(); if (shown < R) timer = setTimeout(step, 16); else finish(); };
+    step();
   }
   [po, pn, nq].forEach(el => { el.addEventListener('input', sync); el.addEventListener('change', sim); });
   $('#sim').onclick = sim;
+  redraws.push(draw);
   sync(); sim();
 }
 
-/* ---------- 9. mix ---------- */
+/* ---------- 9. mix the ingredients ---------- */
 {
   const parts = [
     { label: 'Problem', opts: [
@@ -679,11 +824,7 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   parts.forEach((p, i) => {
     const row = document.createElement('div'); row.className = 'row';
     row.innerHTML = `<span style="width:70px;font-weight:600">${p.label}</span>`;
-    p.opts.forEach(([l], j) => {
-      const b = document.createElement('button'); b.textContent = l;
-      b.onclick = () => { pick[i] = j; render(); };
-      row.append(b);
-    });
+    p.opts.forEach(([l], j) => { const b = document.createElement('button'); b.textContent = l; b.onclick = () => { pick[i] = j; render(); }; row.append(b); });
     ctl.append(row);
   });
   function render() {
@@ -695,56 +836,37 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   render();
 }
 
-/* ---------- 10. loop ---------- */
+/* ---------- 11. overfitting ---------- */
 {
-  const steps = [...document.querySelectorAll('#loop .st')];
-  const caps = [
-    'Customers use the bot. Every chat is a possible test question.',
-    'Watch for signs of trouble: customers asking for a human, thumbs down, complaints.',
-    'Read those chats. Missing article? Bad answer? Or the customer just wanted a person?',
-    'Turn each one into a test question with its right answer, so the eval knows about it from now on.',
-    'Change the bot, run the eval, and release. Then go back to the start and keep watching.'
-  ];
-  const cap = $('#loop .pipe-cap'), btn = $('#loop-toggle');
-  let i = 0, timer = null;
-  const show = k => { steps.forEach((s, j) => s.classList.toggle('on', j === k)); cap.textContent = caps[k]; };
-  const play = () => { timer = setInterval(() => { i = (i + 1) % steps.length; show(i); }, 2600); btn.textContent = 'Pause'; };
-  const stop = () => { clearInterval(timer); timer = null; btn.textContent = 'Play'; };
-  steps.forEach((s, j) => s.addEventListener('click', () => { stop(); i = j; show(j); }));
-  btn.addEventListener('click', () => timer ? stop() : play());
-  show(0); if (!reduce) play(); else btn.textContent = 'Play';
-}
-
-/* ---------- 11. overfit ---------- */
-{
-  const SIZES = [20, 50, 200, 1000], c = $('#oc'), ctx = c.getContext('2d'), nIn = $('#of-n');
-  const gauss = () => { let u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
-  const clamp = v => Math.max(0, Math.min(1, v));
-  let A = [], B = [], timer = null;
+  // The prompt is K "knobs". Each question reacts to the knobs in its own way (its weights),
+  // plus a small shared part, so some tweaks genuinely help everyone.
+  const SIZES = [20, 50, 200, 1000], K = 20, Z0 = 0.85, c = $('#oc'), ctx = c.getContext('2d'), nIn = $('#of-n');
+  let A = [], B = [], shown = 0, timer = null;
   function simulate(n) {
-    // real: how good the bot truly is. fit: how well the prompt happens to suit these exact questions.
-    // luck: the up-and-down of one run. We keep a tweak only if the score we see goes up.
-    let real = 0.7, fit = 0, shown = 0.7;
-    A = [shown]; B = [real];
+    const shared = Array.from({ length: K }, () => gauss() * 0.2);
+    const question = () => shared.map(s => s + gauss());
+    const tune = Array.from({ length: n }, question), unseen = Array.from({ length: 1000 }, question);
+    const p = (w, k) => { let z = Z0; for (let j = 0; j < K; j++) z += w[j] * k[j]; return 1 / (1 + Math.exp(-z)); };
+    const measure = k => tune.reduce((s, w) => s + (Math.random() < p(w, k) ? 1 : 0), 0) / n; // one run, with luck
+    const real = k => unseen.reduce((s, w) => s + p(w, k), 0) / unseen.length;
+    let k = new Array(K).fill(0), best = measure(k), r = real(k);
+    A = [best]; B = [r];
     for (let t = 0; t < 50; t++) {
-      const s = gauss() * 0.006;
-      const room = Math.sqrt(1 - Math.min(0.95, (real + fit - 0.7) / 0.3));
-      const f = fit + gauss() * 0.15 / Math.sqrt(n) * room;
-      const seen = Math.min(1, real + s + f + gauss() * Math.sqrt(0.21 / n));
-      if (seen > shown) { shown = seen; real += s; fit = f; }
-      A.push(shown); B.push(clamp(real));
+      const cand = k.map(x => x + gauss() * 0.15), m = measure(cand);
+      if (m > best) { best = m; k = cand; r = real(k); }
+      A.push(best); B.push(r);
     }
   }
-  function draw(upto) {
-    const W = c.width, H = c.height, L = 70, R = 20, T = 20, Bm = 50;
-    const x = t => L + t / 50 * (W - L - R), y = v => T + (1 - (v - 0.5) / 0.5) * (H - T - Bm);
+  function draw() {
+    const W = c.width, H = c.height, L = 80, Rm = 20, T = 20, Bm = 50, lo = 0.4;
+    const x = t => L + t / 50 * (W - L - Rm), y = v => T + (1 - (v - lo) / (1 - lo)) * (H - T - Bm);
     ctx.clearRect(0, 0, W, H);
-    ctx.font = '22px ' + css('--sans'); ctx.fillStyle = css('--muted'); ctx.strokeStyle = css('--line'); ctx.lineWidth = 2;
-    for (let v = 0.5; v <= 1.001; v += 0.1) { ctx.beginPath(); ctx.moveTo(L, y(v)); ctx.lineTo(W - R, y(v)); ctx.stroke(); ctx.textAlign = 'right'; ctx.fillText(Math.round(v * 100) + '%', L - 10, y(v) + 7); }
-    ctx.textAlign = 'center'; ctx.fillText('tweaks tried →', (L + W - R) / 2, H - 12);
+    ctx.font = '22px ' + css('--sans'); ctx.strokeStyle = css('--line'); ctx.lineWidth = 2; ctx.fillStyle = css('--muted');
+    for (let v = lo; v <= 1.001; v += 0.1) { ctx.beginPath(); ctx.moveTo(L, y(v)); ctx.lineTo(W - Rm, y(v)); ctx.stroke(); ctx.textAlign = 'right'; ctx.fillText(Math.round(v * 100) + '%', L - 10, y(v) + 7); }
+    ctx.textAlign = 'center'; ctx.fillText('tweaks tried →', (L + W - Rm) / 2, H - 12);
     [[A, css('--accent')], [B, css('--pass')]].forEach(([arr, col]) => {
       ctx.strokeStyle = col; ctx.lineWidth = 5; ctx.lineJoin = 'round'; ctx.beginPath();
-      for (let t = 0; t <= upto; t++) t ? ctx.lineTo(x(t), y(arr[t])) : ctx.moveTo(x(t), y(arr[t]));
+      for (let t = 0; t <= shown && t < arr.length; t++) t ? ctx.lineTo(x(t), y(arr[t])) : ctx.moveTo(x(t), y(arr[t]));
       ctx.stroke();
     });
   }
@@ -752,22 +874,67 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     clearTimeout(timer);
     const n = SIZES[nIn.value]; simulate(n);
     const finish = () => {
-      draw(50);
-      const a = A[50], b = B[50], gap = (a - b) * 100;
-      $('#of-a').textContent = Math.round(a * 100) + '%'; $('#of-b').textContent = Math.round(b * 100) + '%';
-      $('#of-cap').innerHTML = gap > 8
-        ? `The test score went up ${Math.round((a - A[0]) * 100)} points, but on new questions the bot barely changed. Most of the "gain" is the prompt fitting these ${n} questions, plus lucky runs.`
-        : `With ${n} questions the fake gain is smaller, but it's still there. Tune on any test 50 times and it starts to flatter you.`;
+      shown = 50; draw();
+      const da = (A[50] - A[0]) * 100, db = (B[50] - B[0]) * 100;
+      $('#of-a').textContent = pct(A[50]); $('#of-b').textContent = pct(B[50]);
+      const sgn = v => (v >= 0 ? '+' : '−') + Math.abs(Math.round(v));
+      $('#of-cap').innerHTML = `On the ${n} questions we tuned on: <strong>${sgn(da)} points</strong>. On questions it has never seen: <strong>${sgn(db)} points</strong>. ` +
+        (da - db > 8 ? 'Most of the "gain" is the prompt fitting these exact questions, plus lucky runs.' :
+         da - db > 3 ? 'Some of the gain is real, but the test still flatters the bot.' :
+         'With this many questions, the test score mostly tells the truth.') +
+        ' Press the button again: every run is different, but the pattern holds.';
     };
     if (reduce) return finish();
-    $('#of-a').textContent = $('#of-b').textContent = '…';
-    let t = 0; const step = () => { t++; draw(t); if (t < 50) timer = setTimeout(step, 40); else finish(); };
+    ['#of-a', '#of-b'].forEach(s => $(s).textContent = '…'); shown = 0;
+    const step = () => { shown++; draw(); if (shown < 50) timer = setTimeout(step, 40); else finish(); };
     step();
   }
   nIn.addEventListener('input', () => $('#of-n-o').textContent = SIZES[nIn.value]);
   nIn.addEventListener('change', run);
   $('#of-run').onclick = run;
+  redraws.push(draw);
   $('#of-n-o').textContent = SIZES[nIn.value]; run();
+}
+
+/* ---------- glossary ---------- */
+{
+  const g = [
+    ['Eval', 'A repeatable test of how well an AI system does its job', 1],
+    ['Eval set / test set', 'The questions you test with', 2],
+    ['Reference answer', 'The right answer you compare against', 2],
+    ['Rubric', 'The marking scheme', 2],
+    ['Deterministic check', 'Code that checks the same way every time, like exact match or regex', 3],
+    ['LLM-as-judge', 'An AI used as the grader', 3],
+    ['Variance', 'How much scores jump around between runs', 4],
+    ['Bias', 'How far the average score is from the correct one', 4],
+    ['Reliability / validity', 'Same result every time / correct result', 4],
+    ['Ground truth / labels', 'The expert\'s marks, treated as correct', 5],
+    ['Confusion matrix', 'Table of what the judge said vs. what the expert said', 5],
+    ['False positive / false negative', 'A false alarm / a miss', 5],
+    ['Precision', 'When it flags something, how often it\'s right', 5],
+    ['Recall', 'Of the real problems, how many it catches', 5],
+    ['Accuracy', 'How often it agrees overall', 5],
+    ['F1 score', 'Precision and recall combined into one number', 5],
+    ['Cohen\'s kappa', 'Agreement after removing luck', 5],
+    ['Inter-annotator agreement', 'How often two experts agree with each other', 5],
+    ['Train/test split', 'Keep what you tune on apart from what you measure with', 5],
+    ['Drift', 'The world changing away from what your test assumes', 6],
+    ['Slice', 'One group of questions scored on its own', 7],
+    ['Stratified sampling', 'Picking questions group by group', 7],
+    ['Sample size (n)', 'How many questions are in the eval', 8],
+    ['Sampling error', 'Score changes caused by which questions got picked', 8],
+    ['Confidence interval', 'The range the true score probably sits in', 8],
+    ['Statistically significant', 'Too big a gap to be explained by luck', 8],
+    ['Paired comparison', 'Compare old vs. new one question at a time', 8],
+    ['Synthetic data', 'Generated test questions', 9],
+    ['Coverage', 'How many situations you care about the eval tests', 9],
+    ['Offline / online eval', 'Testing before release / measuring live use', 10],
+    ['Error analysis', 'Reading failures and sorting them into buckets', 10],
+    ['Overfitting', 'Better at the test, not at the job', 11],
+    ['Held-out set', 'Locked questions nobody tunes on', 11],
+    ['Goodhart\'s law', 'When a number becomes the goal, it stops being a good measure', 11],
+  ];
+  $('#gloss').innerHTML = g.map(([t, d, s]) => `<tr><td><strong>${t}</strong></td><td>${d}</td><td>${s}</td></tr>`).join('');
 }
 })();
 </script>

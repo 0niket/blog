@@ -298,7 +298,75 @@ footer{margin-top:4em;padding-top:1.4em;border-top:1px solid var(--line);color:v
 
 <p>With 10 questions, the new prompt really is better, yet the eval often fails to show it, and one eval's score can land almost anywhere. With a few hundred questions, the two groups of dots separate clearly. Before believing an improvement, check that the gap is bigger than the normal up-and-down from luck.</p>
 
-<div class="callout"><strong>Still being worked out:</strong> how many questions are enough, how to choose them, and what to do when the eval says "better" but customers don't agree. More sections coming.</div>
+<!-- 9 -->
+<h2><span class="n">9</span>Not enough hard questions? Make some up</h2>
+<p>So 10 hard questions is too few to trust. But hard questions are rare by nature. Last month only 10 customers were about to dispute a charge with their bank. We can't wait a year for 200 more.</p>
+<p>The answer is to <strong>make some up</strong>, usually by asking an AI to write them. (This is called <em>synthetic data</em>.) But remember the problem from section 7: made-up questions come out neat and polite, and real customers don't write like that. Four habits keep fake questions useful:</p>
+<ol>
+  <li><strong>Start from real examples.</strong> Show the AI your 10 real hard questions, typos and all, so the fake ones sound like real people.</li>
+  <li><strong>Mix the ingredients on purpose.</strong> Don't just say "write hard questions". List the parts and combine them, so you get variety you chose instead of variety the AI happened to come up with.</li>
+  <li><strong>Have an expert check them.</strong> Some will be impossible, too easy, or have the wrong right answer.</li>
+  <li><strong>Keep the real ones separate.</strong> Use the fake questions for everyday testing, and save the real ones as the final check. If the bot passes 95% of the fake questions and fails the real ones, your fake questions aren't realistic enough.</li>
+</ol>
+
+<div class="pg" id="mix">
+  <div class="pg-h"><span class="pg-tag">Try it</span><span class="pg-title">Mix the ingredients</span><span class="hint" id="mix-count"></span></div>
+  <div id="mix-ctl" style="display:grid;gap:10px"></div>
+  <div class="card" style="margin-top:14px"><h4>A made-up customer message</h4><div id="mix-out" style="font-family:var(--serif);font-size:1.05rem"></div></div>
+  <p class="hint" style="margin:10px 0 0">A real setup would ask an AI to write each combination in a customer's voice. This demo just glues pieces together, but the idea is the same: every combination is a new test question.</p>
+</div>
+
+<!-- 10 -->
+<h2><span class="n">10</span>Learn from real chats</h2>
+<p>Say the eval says Monday's bot is better, but this week more customers asked to talk to a human. Does that mean the bot got worse?</p>
+<p>Not necessarily. It's a clue, not a verdict. The way to find out is to read those chats. They usually fall into one of three buckets:</p>
+<ul>
+  <li><strong>The help articles don't have the answer.</strong> The bot is fine; there's a gap in the articles.</li>
+  <li><strong>The bot answered badly.</strong> The eval missed a kind of mistake.</li>
+  <li><strong>The customer just wanted a human.</strong> That's nobody's fault.</li>
+</ul>
+<p>Whichever bucket they fall into, those chats are <strong>exactly the questions the eval doesn't have yet</strong>. So they go into the test. An eval isn't something you build once. It grows from what goes wrong in real chats.</p>
+
+<div class="pg" id="loop">
+  <div class="pg-h"><span class="pg-tag">Watch</span><span class="pg-title">The loop</span></div>
+  <div class="pipe">
+    <div class="st"><b>Real chats</b><span>customers use the bot</span></div>
+    <div class="st"><b>Spot problems</b><span>asked for a human, thumbs down</span></div>
+    <div class="st"><b>Read them</b><span>which bucket?</span></div>
+    <div class="st"><b>Add to the test</b><span>with the right answer</span></div>
+    <div class="st"><b>Change and test</b><span>then release</span></div>
+  </div>
+  <div class="pipe-cap" aria-live="polite"></div>
+  <div class="row"><button id="loop-toggle">Pause</button></div>
+</div>
+
+<!-- 11 -->
+<h2><span class="n">11</span>Teaching to the test</h2>
+<p>Now the team has a good eval. Everyone tweaks the prompt, runs the eval, keeps the tweak if the score went up, and repeats. After 50 tweaks the score has climbed from 70% to 94%. Is the bot really 24 points better?</p>
+<p>Probably not. Two things are going on:</p>
+<ol>
+  <li><strong>The prompt learns the test.</strong> Each tweak gets chosen because it helps <em>these exact questions</em>. It's a student who has memorised last year's exam: great on that paper, no better on a new one. (In machine learning this is called <em>overfitting</em>.)</li>
+  <li><strong>We keep the lucky results.</strong> In section 8 we saw that scores go up and down by luck. Try 50 tweaks and keep only the ones that scored higher, and some of those "wins" were just lucky runs.</li>
+</ol>
+<p>Watch it happen. Each step tries one tweak and keeps it only if the score on the test goes up. The second line shows how the same bot does on questions it has never been tuned on.</p>
+
+<div class="pg" id="overfit">
+  <div class="pg-h"><span class="pg-tag">Try it</span><span class="pg-title">The score you tune on vs. the real score</span></div>
+  <label class="slider">Questions in the test we keep tuning on <output id="of-n-o"></output><input type="range" id="of-n" min="0" max="3" value="1"></label>
+  <div class="row" style="margin:6px 0 12px"><button class="primary" id="of-run">Try 50 tweaks</button>
+    <div class="legend"><span><i class="sw" style="background:var(--accent)"></i>Test we tune on</span><span><i class="sw" style="background:var(--pass)"></i>Questions it's never seen</span></div>
+  </div>
+  <canvas id="oc" width="1200" height="560" aria-label="Score over 50 tweaks"></canvas>
+  <div class="row" style="margin-top:12px;gap:24px">
+    <div><div class="hint">Test we tune on</div><div class="big" id="of-a">–</div></div>
+    <div><div class="hint">Never-seen questions</div><div class="big" id="of-b">–</div></div>
+    <div style="flex:1;min-width:200px"><p class="hint" id="of-cap" style="margin:0"></p></div>
+  </div>
+</div>
+
+<p>The fix is to keep <strong>a locked set of questions</strong> that nobody tunes on. You only check it once in a while, like a final exam nobody has seen. Keep adding fresh real chats to it, and keep watching what real customers do. There's a famous saying for this, known as Goodhart's law: <em>when a number becomes the goal, it stops being a good measure.</em></p>
+
+<div class="callout"><strong>Still being worked out:</strong> how to write a good marking scheme, and how to tell when the eval itself needs to change. More sections coming.</div>
 
 <footer>Written as a back-and-forth of questions and answers: ask, answer, poke at the weak spot, repeat. All the demos run in your browser. The bots and judges in them are simulated, not real AIs.</footer>
 </main>
@@ -586,6 +654,120 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   [po, pn, nq].forEach(el => { el.addEventListener('input', sync); el.addEventListener('change', sim); });
   $('#sim').onclick = sim;
   sync(); sim();
+}
+
+/* ---------- 9. mix ---------- */
+{
+  const parts = [
+    { label: 'Problem', opts: [
+      ['Charged twice', 'I was charged twice for the same order'],
+      ['Broken, too late', 'my blender arrived broken and I only opened it after the return window closed'],
+      ['Refund missing', 'my refund still hasn\'t shown up and it\'s been 3 weeks'],
+    ]},
+    { label: 'Mood', opts: [
+      ['Calm', ['Hi, ', '. Could you help?']],
+      ['Angry', ['This is ridiculous. ', '!! Fix it NOW.']],
+      ['Confused', ['Sorry, not sure if this is the right place but ', '?? what do I do']],
+    ]},
+    { label: 'Details', opts: [
+      ['Everything given', ' Order #48213.'],
+      ['No order number', ''],
+      ['Wrong details', ' Order number is 4821 I think?'],
+    ]},
+  ];
+  const pick = [0, 1, 1], ctl = $('#mix-ctl');
+  parts.forEach((p, i) => {
+    const row = document.createElement('div'); row.className = 'row';
+    row.innerHTML = `<span style="width:70px;font-weight:600">${p.label}</span>`;
+    p.opts.forEach(([l], j) => {
+      const b = document.createElement('button'); b.textContent = l;
+      b.onclick = () => { pick[i] = j; render(); };
+      row.append(b);
+    });
+    ctl.append(row);
+  });
+  function render() {
+    ctl.querySelectorAll('.row').forEach((r, i) => r.querySelectorAll('button').forEach((b, j) => b.setAttribute('aria-pressed', j === pick[i])));
+    const core = parts[0].opts[pick[0]][1], [pre, post] = parts[1].opts[pick[1]][1], tail = parts[2].opts[pick[2]][1];
+    $('#mix-out').textContent = `“${pre}${core}${post}${tail}”`;
+    $('#mix-count').textContent = '3 × 3 × 3 = 27 different test questions';
+  }
+  render();
+}
+
+/* ---------- 10. loop ---------- */
+{
+  const steps = [...document.querySelectorAll('#loop .st')];
+  const caps = [
+    'Customers use the bot. Every chat is a possible test question.',
+    'Watch for signs of trouble: customers asking for a human, thumbs down, complaints.',
+    'Read those chats. Missing article? Bad answer? Or the customer just wanted a person?',
+    'Turn each one into a test question with its right answer, so the eval knows about it from now on.',
+    'Change the bot, run the eval, and release. Then go back to the start and keep watching.'
+  ];
+  const cap = $('#loop .pipe-cap'), btn = $('#loop-toggle');
+  let i = 0, timer = null;
+  const show = k => { steps.forEach((s, j) => s.classList.toggle('on', j === k)); cap.textContent = caps[k]; };
+  const play = () => { timer = setInterval(() => { i = (i + 1) % steps.length; show(i); }, 2600); btn.textContent = 'Pause'; };
+  const stop = () => { clearInterval(timer); timer = null; btn.textContent = 'Play'; };
+  steps.forEach((s, j) => s.addEventListener('click', () => { stop(); i = j; show(j); }));
+  btn.addEventListener('click', () => timer ? stop() : play());
+  show(0); if (!reduce) play(); else btn.textContent = 'Play';
+}
+
+/* ---------- 11. overfit ---------- */
+{
+  const SIZES = [20, 50, 200, 1000], c = $('#oc'), ctx = c.getContext('2d'), nIn = $('#of-n');
+  const gauss = () => { let u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+  const clamp = v => Math.max(0, Math.min(1, v));
+  let A = [], B = [], timer = null;
+  function simulate(n) {
+    // real: how good the bot truly is. fit: how well the prompt happens to suit these exact questions.
+    // luck: the up-and-down of one run. We keep a tweak only if the score we see goes up.
+    let real = 0.7, fit = 0, shown = 0.7;
+    A = [shown]; B = [real];
+    for (let t = 0; t < 50; t++) {
+      const s = gauss() * 0.006;
+      const room = Math.sqrt(1 - Math.min(0.95, (real + fit - 0.7) / 0.3));
+      const f = fit + gauss() * 0.15 / Math.sqrt(n) * room;
+      const seen = Math.min(1, real + s + f + gauss() * Math.sqrt(0.21 / n));
+      if (seen > shown) { shown = seen; real += s; fit = f; }
+      A.push(shown); B.push(clamp(real));
+    }
+  }
+  function draw(upto) {
+    const W = c.width, H = c.height, L = 70, R = 20, T = 20, Bm = 50;
+    const x = t => L + t / 50 * (W - L - R), y = v => T + (1 - (v - 0.5) / 0.5) * (H - T - Bm);
+    ctx.clearRect(0, 0, W, H);
+    ctx.font = '22px ' + css('--sans'); ctx.fillStyle = css('--muted'); ctx.strokeStyle = css('--line'); ctx.lineWidth = 2;
+    for (let v = 0.5; v <= 1.001; v += 0.1) { ctx.beginPath(); ctx.moveTo(L, y(v)); ctx.lineTo(W - R, y(v)); ctx.stroke(); ctx.textAlign = 'right'; ctx.fillText(Math.round(v * 100) + '%', L - 10, y(v) + 7); }
+    ctx.textAlign = 'center'; ctx.fillText('tweaks tried →', (L + W - R) / 2, H - 12);
+    [[A, css('--accent')], [B, css('--pass')]].forEach(([arr, col]) => {
+      ctx.strokeStyle = col; ctx.lineWidth = 5; ctx.lineJoin = 'round'; ctx.beginPath();
+      for (let t = 0; t <= upto; t++) t ? ctx.lineTo(x(t), y(arr[t])) : ctx.moveTo(x(t), y(arr[t]));
+      ctx.stroke();
+    });
+  }
+  function run() {
+    clearTimeout(timer);
+    const n = SIZES[nIn.value]; simulate(n);
+    const finish = () => {
+      draw(50);
+      const a = A[50], b = B[50], gap = (a - b) * 100;
+      $('#of-a').textContent = Math.round(a * 100) + '%'; $('#of-b').textContent = Math.round(b * 100) + '%';
+      $('#of-cap').innerHTML = gap > 8
+        ? `The test score went up ${Math.round((a - A[0]) * 100)} points, but on new questions the bot barely changed. Most of the "gain" is the prompt fitting these ${n} questions, plus lucky runs.`
+        : `With ${n} questions the fake gain is smaller, but it's still there. Tune on any test 50 times and it starts to flatter you.`;
+    };
+    if (reduce) return finish();
+    $('#of-a').textContent = $('#of-b').textContent = '…';
+    let t = 0; const step = () => { t++; draw(t); if (t < 50) timer = setTimeout(step, 40); else finish(); };
+    step();
+  }
+  nIn.addEventListener('input', () => $('#of-n-o').textContent = SIZES[nIn.value]);
+  nIn.addEventListener('change', run);
+  $('#of-run').onclick = run;
+  $('#of-n-o').textContent = SIZES[nIn.value]; run();
 }
 })();
 </script>
